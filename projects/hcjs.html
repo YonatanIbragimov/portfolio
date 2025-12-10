@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development Guide - The Mastery Blueprint</title>
+    <!-- Load Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Three.js for 3D Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* --- 1. CSS Custom Properties (Theme Variables) --- */
+        :root {
+            /* DARK MODE DEFAULTS */
+            --color-primary: #3b82f6;      /* Blue-500 (Accent) */
+            --color-secondary: #facc15;    /* Amber-400 (Secondary Pop) */
+            --bg-body: #000000;            /* Pure Black */
+            --bg-body-end: #030712;        /* Dark Slate */
+            --text-primary: #ffffff;       /* White */
+            --text-secondary: #e5e7eb;     /* Gray-200 */
+            --text-muted: #a1a1aa;         /* Zinc-400 */
+            --bg-sidebar: rgba(0, 0, 0, 0.9);
+            --border-main: rgba(255, 255, 255, 0.08);
+            --bg-container: rgba(17, 24, 39, 0.6); /* Glassy Blue-Dark */
+            --border-container: rgba(59, 130, 246, 0.2);
+            --bg-card-default: rgba(31, 41, 55, 0.8); /* Darker Card BG */
+            --bg-card-hover: rgba(55, 65, 81, 0.9); /* Card BG on Hover */
+            --bg-code: #000000;
+            --border-code: #1f2937;
+            --text-code: #d1d5db;
+            /* Animated Background */
+            --bg-gradient-angle: 135deg;
+        }
+        /* LIGHT MODE OVERRIDES */
+        .theme-light {
+            --color-primary: #1d4ed8;      /* Blue-700 (Accent) */
+            --color-secondary: #d97706;    /* Amber-700 (Secondary Pop) */
+            --bg-body: #ffffff;            /* Pure White */
+            --bg-body-end: #f3f4f6;        /* Light Gray */
+            --text-primary: #1f2937;       /* Gray-800 */
+            --text-secondary: #374151;     /* Gray-700 */
+            --text-muted: #6b7280;         /* Gray-500 */
+            --bg-sidebar: rgba(255, 255, 255, 0.95);
+            --border-main: rgba(0, 0, 0, 0.1);
+            --bg-container: rgba(249, 250, 251, 0.8); /* Glassy White-Light */
+            --border-container: rgba(29, 78, 216, 0.1);
+            --bg-card-default: rgba(255, 255, 255, 0.9); /* Lighter Card BG */
+            --bg-card-hover: rgba(240, 240, 240, 1); /* Card BG on Hover */
+            --bg-code: #f3f4f6;
+            --border-code: #e5e7eb;
+            --text-code: #1f2937;
+        }
+        /* --- 2. Global Styling --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(var(--bg-gradient-angle), var(--bg-body) 0%, var(--bg-body-end) 100%);
+            color: var(--text-secondary);
+            transition: background 0.5s ease, color 0.5s ease;
+            min-height: 100vh;
+            position: relative; /* For background effects */
+        }
+        /* Animated Background Gradient */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(var(--bg-gradient-angle), var(--bg-body) 0%, var(--bg-body-end) 100%);
+            z-index: -2; /* Behind content */
+            transition: background 0.5s ease;
+        }
+        body::after {
+             content: "";
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 20%),
+                         radial-gradient(circle at 90% 80%, rgba(250, 204, 21, 0.05) 0%, transparent 20%);
+             z-index: -1; /* Behind gradient, above content */
+             pointer-events: none;
+             opacity: 0.5;
+        }
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background-color: var(--text-muted); border-radius: 4px; }
+        ::-webkit-scrollbar-track { background-color: var(--bg-body); }
+        /* Sidebar Styling (Glassy) */
+        .glassy-sidebar {
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-main);
+            color: var(--text-secondary);
+        }
+        /* Main Container Styling (Glassy) */
+        .glassy-container {
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background-color: var(--bg-container);
+            border: 1px solid var(--border-container);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            transition: background-color 0.5s ease, border-color 0.5s ease;
+        }
+        .theme-light .glassy-container {
+             box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Card/Accordion Styling */
+        .accordion-card {
+            background-color: var(--bg-card-default);
+            border: 1px solid var(--border-main);
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--text-primary);
+        }
+        .accordion-header:hover {
+            background-color: var(--bg-card-hover);
+        }
+        /* CRITICAL FIX: Set max-height to 0 and allow JS to set scrollHeight */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out;
+        }
+        .accordion-card .accordion-content-inner {
+            padding-top: 0.5rem;
+            color: var(--text-secondary);
+        }
+        .accordion-content[style*="max-height"]:not([style*="max-height: 0px"]) .accordion-content-inner {
+            border-top: 1px solid var(--border-main);
+            padding-top: 1.5rem;
+        }
+        .accordion-card:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+        /* Code blocks */
+        pre {
+            background-color: var(--bg-code);
+            border: 1px solid var(--border-code);
+            color: var(--text-code);
+            font-size: 0.9rem;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        /* Utility Classes based on variables */
+        .text-var-primary { color: var(--text-primary); }
+        .text-var-secondary { color: var(--text-secondary); }
+        .text-var-muted { color: var(--text-muted); }
+        .text-primary-accent { color: var(--color-primary); }
+        .bg-primary-accent { background-color: var(--color-primary); }
+        .bg-secondary-accent { background-color: var(--color-secondary); }
+        .border-primary-accent { border-color: var(--color-primary); }
+        .border-main { border-color: var(--border-main); }
+        /* Specific element overrides */
+        .module-text { color: var(--text-muted); }
+        .nav-link.active-glow {
+            box-shadow: 0 0 10px var(--color-primary);
+            transform: scale(1.02);
+            border-left: 3px solid var(--color-primary) !important;
+        }
+        /* Demo Layout */
+        #responsive-demo-container {
+            display: flex;
+            transition: all 0.5s ease-in-out;
+            min-height: 100px;
+            gap: 8px;
+            background-color: var(--bg-code);
+            border: 1px solid var(--border-code);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .demo-item {
+            min-height: 50px;
+            transition: all 0.3s ease-in-out;
+            color: var(--text-primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            font-weight: 500;
+        }
+        /* Toggle Switch Styling */
+        .toggle-switch {
+            width: 48px;
+            height: 24px;
+            border-radius: 12px;
+            background-color: var(--text-muted);
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .toggle-switch:after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--text-primary);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .theme-light .toggle-switch {
+            background-color: var(--color-primary);
+        }
+        .theme-light .toggle-switch:after {
+            transform: translateX(24px);
+            background-color: var(--text-secondary);
+        }
+        /* Notification Close Button */
+        .notification-close-btn {
+            cursor: pointer;
+            margin-left: 1rem;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+        .notification-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        /* Title Animation */
+        .title-glow {
+            animation: titleGlow 0.5s ease-out;
+        }
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+            50% { text-shadow: 0 0 20px var(--color-primary), 0 0 30px var(--color-secondary); }
+            100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--bg-container);
+            border: 1px solid var(--border-container);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover {
+            color: var(--text-primary);
+        }
+        .modal-title {
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-main);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .modal-body {
+            color: var(--text-secondary);
+        }
+        .modal-body svg {
+            width: 100%;
+            height: auto;
+            margin-top: 1rem;
+            border: 1px solid var(--border-code);
+            border-radius: 0.25rem;
+        }
+        /* Playground Diagram Button */
+        .diagram-btn {
+            background-color: var(--bg-card-default);
+            border: 1px solid var(--border-main);
+            color: var(--text-primary);
+            padding: 1rem;
+            margin: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-width: 100px; /* Consistent size */
+            min-height: 80px; /* Consistent size */
+        }
+        .diagram-btn:hover {
+            background-color: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .diagram-btn:active {
+            transform: translateY(0);
+        }
+        /* Animation for useState */
+        @keyframes useStatePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .state-circle {
+            animation: useStatePulse 1.5s infinite;
+        }
+        /* Animation for useEffect */
+        @keyframes useEffectFlow {
+            0% { cx: -10; }
+            100% { cx: 110; }
+        }
+        .effect-dot {
+            animation: useEffectFlow 2s infinite linear;
+        }
+        /* Animation for Flexbox */
+        @keyframes flexItemGrow {
+            0% { width: 20px; }
+            50% { width: 80px; }
+            100% { width: 20px; }
+        }
+        .flex-item-grow {
+            animation: flexItemGrow 3s infinite;
+        }
+        /* Animation for Grid */
+        @keyframes gridCellFill {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .grid-cell {
+            animation: gridCellFill 1s infinite alternate;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // These are now controlled by CSS variables
+                        'surface-dark': '#1f2937',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row">
+    <!-- 1. Responsive Sidebar Navigation (Glassy) -->
+    <nav id="sidebar" class="glassy-sidebar p-4 lg:w-64 flex-shrink-0 lg:h-screen lg:fixed overflow-y-auto">
+        <h2 class="text-2xl font-black mb-6 text-var-primary tracking-wide border-b border-main pb-4">Dev<span class="text-primary-accent">Guide</span></h2>
+        <div id="module-links" class="space-y-1">
+            <button data-module="home" class="nav-link w-full text-left p-3 rounded-xl transition duration-200">
+                0. Overview (Home)
+            </button>
+            <button data-module="syntax" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                1. Syntax & Semantics
+            </button>
+            <button data-module="layout" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                2. Layout & Responsiveness
+            </button>
+            <button data-module="components" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                3. Forms & Web Components
+            </button>
+            <button data-module="javascript" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                4. JS Logic & Immutability
+            </button>
+            <button data-module="react" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                5. ReactJS & Advanced Hooks
+            </button>
+             <button data-module="state" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                6. Global State & Caching
+            </button>
+            <button data-module="api" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                7. API Contract Design
+            </button>
+            <button data-module="security" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                8. Security & Vulnerabilities
+            </button>
+            <button data-module="performance" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                9. Performance (CWV, SSR, SSG)
+            </button>
+            <button data-module="testing" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                10. Testing & Debugging (E2E)
+            </button>
+            <button data-module="tooling" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                11. Advanced Tooling & CI/CD
+            </button>
+            <button data-module="architecture" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                12. Modern Architecture & Future
+            </button>
+            <button data-module="php" class="nav-link w-full text-left p-3 rounded-xl hover:bg-white/5 hover:text-var-primary transition duration-200">
+                13. PHP Fundamentals & Beyond
+            </button>
+        </div>
+        <!-- Theme Toggle -->
+        <div class="mt-8 pt-4 border-t border-main flex justify-between items-center text-sm font-medium">
+            <span class="text-var-secondary flex items-center gap-1">
+                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                 Light Mode
+            </span>
+            <div id="theme-toggle" class="toggle-switch"></div>
+        </div>
+    </nav>
+    <!-- 2. Main Content Area -->
+    <main class="lg:ml-64 flex-grow p-6 md:p-12">
+        <header class="mb-10 border-b border-main pb-6">
+            <h1 id="main-title" class="text-4xl md:text-6xl font-black text-var-primary tracking-tight cursor-pointer">Zero to <span class="text-primary-accent">Holy Grail</span></h1>
+            <p class="text-xl text-var-muted mt-3 font-light">The complete modern front-end guide for professional mastery.</p>
+        </header>
+        <!-- Dynamic Content Container (Glassy) -->
+        <section id="content-container" class="glassy-container p-6 md:p-10 rounded-2xl">
+            <!-- Content for modules will be inserted here -->
+        </section>
+    </main>
+    <!-- 3. Global Notification Box -->
+    <div id="notification-box" class="fixed bottom-6 right-6 p-4 rounded-lg shadow-2xl transition duration-500 transform translate-x-full opacity-0 z-50 border-main border font-medium text-sm flex items-center gap-3">
+        <span id="notification-message"></span>
+        <span id="notification-close" class="notification-close-btn">&times;</span>
+    </div>
+    <!-- 4. Modal Container -->
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close-btn">&times;</span>
+            <h3 id="modal-title" class="modal-title text-xl font-bold"></h3>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+    <!-- 5. JavaScript -->
+    <script>
+        // --- 5.1. Content Data Structure ---
+        const modules = {
+            'home': {
+                title: '0. Overview: The Engineer\'s Mindset',
+                sections: [
+                    {
+                        title: 'The Shift to Software Engineering',
+                        content: `<p class="module-text mb-6 text-lg font-light">Welcome to DevGuide! We're not just learning syntax anymore; we're shifting from being coders to being **Software Engineers**. This transition means moving from "how to make it work" to "how to make it robust, scalable, and maintainable." Mastery is about embracing systemic quality and long-term maintainability.</p>`
+                    },
+                    {
+                        title: 'Web Stack Blueprint (Interactive)',
+                        content: `
+                            <p class="module-text mb-4">Mastery requires understanding the components beyond the browser. Our 3D model represents the core architecture: the Frontend (UI/UX), the API Gateway (the single entry point), and the Microservices (isolated backend logic).</p>
+                            <div id="three-container" class="h-64 md:h-96 w-full mb-4 rounded-xl overflow-hidden border border-primary-accent/30 shadow-2xl shadow-[0_0_20px_rgba(59,130,246,0.3)] relative">
+                                <canvas id="three-js-canvas" class="w-full h-full"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-var-muted text-sm">
+                                    <span class="p-2 backdrop-blur-sm rounded-lg" style="background-color: var(--bg-container); border: 1px solid var(--border-main);">Abstract 3D Data Model: Complexity & Interconnectedness</span>
+                                </div>
+                            </div>
+                            <p class="module-text text-sm italic mt-2">Adjusting the theme will change the accent color of the model.</p>
+                        `
+                    },
+                    {
+                        title: 'The Engineer\'s Toolkit: Design Principles',
+                        content: `
+                            <ul class="list-disc list-inside space-y-3 module-text">
+                                <li><strong>DRY (Don't Repeat Yourself)</strong>: This principle goes beyond copy-pasted code. If you have two functions that perform similar logic with slightly different inputs, abstract the common logic into a generic utility. Excessive duplication leads to massive technical debt and future bug proliferation.</li>
+                                <li><strong>KISS (Keep It Simple, Stupid)</strong>: Favor the simplest, most transparent implementation. A complex solution for a simple problem is an anti-pattern. Simple code is readable code, and readable code is maintainable code.</li>
+                                <li><strong>SOLID Principles</strong>: These five principles from object-oriented design apply directly to component-based architecture. Crucially, the <strong>Single Responsibility Principle (SRP)</strong> means a React component should only handle presentation *or* data fetching, not both. If a change request could affect two unrelated aspects of the code, the responsibilities are not properly separated.</li>
+                                <li><strong>Separation of Concerns (SoC)</strong>: Isolate business logic (the "what"), presentation (the "how it looks"), and data persistence (the "where it lives"). Using state management layers helps enforce this boundary, making testing easier.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: 'Mastery Mindset Shift: Deepening Browser Knowledge',
+                        content: `
+                            <p class="module-text">Stop treating the browser as a simple rendering engine. It's a highly complex, multi-threaded operating environment. Mastery requires understanding the <strong>V8 Engine's optimization tiers</strong> (Full-CodeGen, TurboFan), the asynchronous nature of the <strong>Event Loop</strong> (microtasks vs. macrotasks), and the sequential stages of the <strong>Browser Rendering Pipeline</strong> (Style, Layout, Paint, Composite). Knowledge of these layers separates a developer who struggles with performance from one who effortlessly ships fast, efficient code.</p>
+                        `
+                    },
+                    {
+                        title: 'Theme Customizer',
+                        content: `
+                            <p class="module-text mb-4">Change the primary and secondary accent colors of the entire site!</p>
+                            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8 mb-4 p-4 rounded-xl" style="background-color: var(--bg-code); border: 1px solid var(--border-code);">
+                                <div class="flex flex-col space-y-2">
+                                    <label for="primary-color-picker" class="text-var-primary font-medium">Primary Color:</label>
+                                    <input type="color" id="primary-color-picker" value="#3b82f6" class="w-16 h-12 rounded-lg cursor-pointer p-1 border-2 text-var-primary shadow-lg">
+                                    <p class="text-sm text-var-muted">Current Value: <code id="current-primary-color-value" class="text-primary-accent font-mono font-bold">#3b82f6</code></p>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="secondary-color-picker" class="text-var-primary font-medium">Secondary Color:</label>
+                                    <input type="color" id="secondary-color-picker" value="#facc15" class="w-16 h-12 rounded-lg cursor-pointer p-1 border-2 text-var-primary shadow-lg">
+                                    <p class="text-sm text-var-muted">Current Value: <code id="current-secondary-color-value" class="text-secondary-accent font-mono font-bold">#facc15</code></p>
+                                </div>
+                                <button id="randomize-theme-btn" class="px-4 py-2 bg-primary-accent text-var-primary rounded-lg hover:opacity-90 transition">Randomize Theme</button>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            'syntax': {
+                title: '1. Syntax & Semantics: Taming the Cascade',
+                sections: [
+                    {
+                        title: 'The Cascade Layer Revolution: @layer',
+                        content: `
+                            <p class="module-text mb-3">Specificity is inherently difficult to manage at scale, leading to fragile and often over-engineered CSS rules. CSS <strong>Cascade Layers</strong> allow you to explicitly define the order of precedence for your style blocks, completely overriding the specificity calculation for rules in lower layers. This gives you global control over which styles win, regardless of how specific they are, simplifying maintenance.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+/* 1. Define Layer Order (Lowest precedence first) */
+@layer reset, defaults, components, utilities, themes, hacks;
+/* 2. Styles in 'defaults' will always lose to 'components',
+   even if 'defaults' rules have higher specificity. */
+@layer defaults {
+    a { color: blue !important; } /* High importance, but low layer precedence */
+}
+@layer components {
+    .main-nav a { color: var(--color-primary); } /* Higher layer precedence, wins over 'defaults' */
+}
+/* Benefit: This decouples source order and specificity from the priority of the styles. */
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Interactive CSS Custom Properties Demo',
+                        content: `
+                            <p class="module-text mb-3">This picker directly manipulates global CSS variables (<code class="font-mono">--color-primary</code>, <code class="font-mono">--color-secondary</code>) scoped to the root element. Notice how the entire application theme reacts instantly, demonstrating the power of variable-driven design for instantaneous theme switching, dark/light mode implementation, and consistent branding overrides without JavaScript manipulation of complex DOM styles.</p>
+                            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8 mb-4 p-4 rounded-xl" style="background-color: var(--bg-code); border: 1px solid var(--border-code);">
+                                <div class="flex flex-col space-y-2">
+                                    <label for="color-picker-primary" class="text-var-primary font-medium">Select Primary Color:</label>
+                                    <input type="color" id="color-picker-primary" value="#3b82f6" class="w-16 h-12 rounded-lg cursor-pointer p-1 border-2 text-var-primary shadow-lg">
+                                    <p class="text-sm text-var-muted">Current Value: <code id="current-color-primary-value" class="text-primary-accent font-mono font-bold">#3b82f6</code></p>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="color-picker-secondary" class="text-var-primary font-medium">Select Secondary Color:</label>
+                                    <input type="color" id="color-picker-secondary" value="#facc15" class="w-16 h-12 rounded-lg cursor-pointer p-1 border-2 text-var-primary shadow-lg">
+                                    <p class="text-sm text-var-muted">Current Value: <code id="current-color-secondary-value" class="text-secondary-accent font-mono font-bold">#facc15</code></p>
+                                </div>
+                                <button id="randomize-colors" class="px-4 py-2 bg-primary-accent text-var-primary rounded-lg hover:opacity-90 transition">Randomize Colors</button>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Advanced ARIA and Focus Traps',
+                        content: `
+                            <p class="module-text mb-3">For critical UI components like modals or drawers, keyboard users must not accidentally tab outside the active element. This is achieved using a JavaScript-implemented <strong>Focus Trap</strong>. You must use JavaScript to listen for the <code class="font-mono">keydown</code> event (specifically the Tab key) and cycle the focus back to the first interactive element if the last one is reached. Critical ARIA roles here include <code class="font-mono">role="dialog"</code>, which identifies the element as a dialog box, and <code class="font-mono">aria-modal="true"</code>, which signals to the assistive technology that the rest of the page is inaccessible.</p>
+                        `
+                    }
+                ]
+            },
+            'layout': {
+                title: '2. Layout & Responsiveness: Intrinsic Design & I18n',
+                sections: [
+                    {
+                        title: 'Logical Properties for Internationalization (i18n)',
+                        content: `
+                            <p class="module-text mb-3">Professional code avoids physical direction properties like <code class="font-mono">margin-left</code> and <code class="font-mono">margin-right</code>. Instead, use <strong>Logical Properties</strong>. These map to the physical direction based on the user's reading mode (Left-to-Right or Right-to-Left). For example, <code class="font-mono">margin-inline-start</code> maps to <code class="font-mono">margin-left</code> in English and <code class="font-mono">margin-right</code> in Arabic, ensuring layouts flip correctly with zero code changes.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+/* Traditional (A mistake for global applications) */
+.card { border-left: 5px solid blue; }
+/* Logical (Correct for all languages) */
+.card {
+    /* Maps to border-left in LTR, border-right in RTL */
+    border-inline-start: 5px solid var(--color-primary);
+    /* Maps to padding-left in LTR, padding-right in RTL */
+    padding-inline-start: 20px;
+}
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Interactive Flex vs. Grid Demo',
+                        content: `
+                            <p class="module-text mb-3">Flexbox is for <strong>one-dimensional</strong> layout (content distribution along a single axis), while Grid is for <strong>two-dimensional</strong> layout (overall structural placement of elements). Use the controls below to see their inherent differences in managing space. Grid allows for explicit column definitions (1fr 2fr 1fr), while Flex is content-driven (w-1/3).</p>
+                            <div class="space-x-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+                                <div class="flex space-x-4 mb-4 sm:mb-0">
+                                    <button id="flex-btn" class="px-4 py-2 bg-primary-accent text-var-primary rounded-lg hover:opacity-90 transition">Use Flexbox</button>
+                                    <button id="grid-btn" class="px-4 py-2 bg-secondary-accent text-var-primary rounded-lg hover:opacity-90 transition">Use Grid</button>
+                                    <button id="reset-layout-btn" class="px-4 py-2 bg-gray-500 text-var-primary rounded-lg hover:opacity-90 transition">Reset</button>
+                                </div>
+                                <div class="ml-0 sm:ml-auto flex items-center space-x-2 w-full sm:w-48">
+                                    <label for="gap-slider" class="text-sm text-var-primary whitespace-nowrap">Gap Size:</label>
+                                    <input type="range" id="gap-slider" min="0" max="40" value="8" class="flex-grow h-2 rounded-lg appearance-none cursor-pointer range-lg" style="background-color: var(--border-code);">
+                                    <span id="gap-value" class="text-var-primary text-sm w-8 text-right">8px</span>
+                                </div>
+                            </div>
+                            <div id="responsive-demo-container" class="w-full rounded-xl gap-2">
+                                <div class="demo-item w-1/3 bg-primary-accent opacity-80 p-2 rounded-lg">Item 1</div>
+                                <div class="demo-item w-1/3 bg-primary-accent opacity-90 p-2 rounded-lg">Item 2</div>
+                                <div class="demo-item w-1/3 bg-primary-accent opacity-100 p-2 rounded-lg">Item 3</div>
+                            </div>
+                            <p class="text-sm text-var-muted mt-2">Current Layout Mode: <span id="layout-status" class="font-mono text-var-primary">Flexbox</span></p>
+                            <p class="text-sm text-var-muted mt-1">Applied CSS: <span id="css-applied" class="font-mono text-var-primary">display: flex; flex-wrap: wrap;</span></p>
+                        `
+                    },
+                    {
+                        title: 'Advanced Scroll Snapping',
+                        content: `
+                            <p class="module-text mb-3">For building carousels, galleries, or single-page sites with distinct sections, CSS Scroll Snapping provides smooth, native-feeling momentum. When a user stops scrolling, the browser automatically "snaps" to the nearest defined snap point. The <code class="text-primary-accent font-mono">scroll-snap-stop: always</code> property is critical for ensuring a snap always occurs, preventing users from getting stuck between sections.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+.carousel-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* Enforce snapping */
+    scroll-padding: 10px; /* Important for alignment */
+}
+.carousel-item {
+    scroll-snap-align: center; /* Snap the center of the item to the center of the container */
+    scroll-snap-stop: always; /* Ensures the snap always happens */
+}
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'components': {
+                title: '3. Forms & Web Components: Encapsulation & Slots',
+                sections: [
+                    {
+                        title: 'Shadow DOM Slots and Styling',
+                        content: `
+                            <p class="module-text mb-3">Web Components provide true, framework-agnostic componentization using the <strong>Shadow DOM</strong> for style encapsulation. Content passed from the light DOM (the main page) into a custom element is rendered in a <strong>Slot</strong> within the Shadow DOM. You can use the <code class="font-mono">::slotted()</code> pseudo-element to target and style this injected content from within the component's internal stylesheet. This is one of the few ways to bridge the style boundary securely.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+/* In the main document (Light DOM): */
+&lt;fancy-button&gt; &lt;span slot="icon"&gt;⚡&lt;/span&gt; Activate Warp &lt;/fancy-button&gt;
+/* Inside the Shadow DOM CSS for fancy-button: */
+::slotted(span[slot="icon"]) {
+    color: var(--color-secondary); /* Style the consumer's content from the inside */
+    margin-inline-end: 0.5rem; /* Logical Properties for spacing */
+    font-size: 1.2em;
+}
+// Key Lifecycle Methods: connectedCallback (in DOM), disconnectedCallback (cleanup to prevent leaks).
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Native <dialog> and International Formatting (Intl API)',
+                        content: `
+                            <p class="module-text mb-3">The native <code class="font-mono">&lt;dialog&gt;</code> element provides built-in accessibility and state management for modals without the need for complex libraries. Furthermore, when handling form data, professional apps require precise, locale-aware data formatting. Stop using manual string concatenation for money or dates. Use the native <strong><code class="font-mono">Intl</code> API</strong> for robust, locale-aware formatting globally.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// 1. Showing the Native Dialog
+const modal = document.getElementById('myModal');
+modal.showModal();
+// 2. Data Formatting Example (Locale-aware Currency)
+const amount = 123456.78;
+const formatter = new Intl.NumberFormat('de-DE', { // German locale
+    style: 'currency',
+    currency: 'EUR',
+});
+console.log('Formatted Price (German):', formatter.format(amount)); // "123.456,78 €"
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'javascript': {
+                title: '4. JS Logic: Immutability and Structural Sharing',
+                sections: [
+                    {
+                        title: 'Structural Sharing for Performance',
+                        content: `
+                            <p class="module-text mb-3">When you update a deeply nested object immutably (using spread operators or tools like Immer), you only create new copies of the objects in the direct path to the change. All other, unchanged objects retain their original references (they are "shared"). This <strong>Structural Sharing</strong> is the entire basis for efficient memoization and performance optimization in React, as reference equality checks (<code class="font-mono">===</code>) are extremely fast.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+const state1 = { user: { id: 1, name: 'Alice' }, settings: { theme: 'dark' } };
+// IMMUTABLE UPDATE: Change 'name'
+const state2 = {
+    ...state1,
+    user: {
+        ...state1.user,
+        name: 'Bob'
+    }
+};
+// Check for Structural Sharing (Reference Equality):
+console.log(state1.settings === state2.settings); // TRUE (Reference is shared!)
+console.log(state1.user === state2.user);         // FALSE (Reference was changed)
+// React's 'useMemo' relies on the 'TRUE' result to skip expensive re-renders.
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Scenario: Schema Validation with Zod/Yup',
+                        content: `
+                            <p class="module-text mb-3">Any data received from an API or user input must be validated before use. Using schema validation libraries like Zod or Yup is essential because they allow you to define the expected data structure once, and use that definition for both <strong>runtime validation</strong> and <strong>TypeScript type inference</strong>. This creates a single source of truth for your data shape.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// Imagine Zod is imported...
+const UserSchema = z.object({
+  id: z.string().uuid("Invalid UUID format"),
+  role: z.enum(['admin', 'user'], "Role must be 'admin' or 'user'"),
+});
+// Runtime Validation
+try {
+  const safeData = UserSchema.parse(unknownAPIData);
+  console.log("Data is safe:", safeData.id);
+} catch (error) {
+  console.error("Validation failed:", error.issues);
+}
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'react': {
+                title: '5. ReactJS: Beyond Hooks, Into Performance',
+                sections: [
+                    {
+                        title: 'Interactive React Hooks Explorer',
+                        content: `
+                            <p class="module-text mb-4">Click on a hook below to explore its functionality.</p>
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <button class="diagram-btn react-hook-btn" data-hook="useState">useState</button>
+                                <button class="diagram-btn react-hook-btn" data-hook="useEffect">useEffect</button>
+                                <button class="diagram-btn react-hook-btn" data-hook="useContext">useContext</button>
+                                <button class="diagram-btn react-hook-btn" data-hook="useReducer">useReducer</button>
+                                <button class="diagram-btn react-hook-btn" data-hook="useMemo">useMemo</button>
+                                <button class="diagram-btn react-hook-btn" data-hook="useCallback">useCallback</button>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Optimized Context: State-and-Dispatcher Pattern',
+                        content: `
+                            <p class="module-text mb-3">A major performance anti-pattern is putting both the state value (changes frequently) and the dispatcher function (is static) into a single React Context. If the state updates, all consumers re-render. The professional solution is to <strong>separate the State Context from the Dispatcher Context</strong>.</p>
+                            <ul class="list-disc list-inside space-y-2 module-text mt-4">
+                                <li><strong>State Context</strong>: Holds the current, changing data.</li>
+                                <li><strong>Dispatcher Context</strong>: Holds the static function (<code class="font-mono">dispatch</code>). Components that <em>only</em> need to dispatch actions can consume this context and <strong>never re-render</strong> when the state changes.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: 'Integrating with External Stores: useSyncExternalStore',
+                        content: `
+                            <p class="module-text mb-3">When integrating React with a non-React state manager (like Zustand or Redux), you must use the official, highly efficient <code class="font-mono">useSyncExternalStore</code> hook. This hook is designed to manage subscriptions in a way that is compatible with React's Concurrent Mode, guaranteeing data consistency (preventing "tearing") better than relying on <code class="font-mono">useState</code> and manual <code class="font-mono">useEffect</code> subscriptions.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// Custom hook to connect to a simple pub/sub store
+function useStore(store) {
+  return useSyncExternalStore(
+    store.subscribe, // How React subscribes
+    store.getSnapshot // How React gets current value
+  );
+}
+// Benefit: Zero dependency on useEffect, eliminating manual cleanup.
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'state': {
+                title: '6. Global State & Caching: SWR and Rollbacks',
+                sections: [
+                    {
+                        title: 'The Stale-While-Revalidate (SWR) Philosophy',
+                        content: `
+                            <p class="module-text mb-3">SWR is a caching strategy. When data is requested, it follows this loop: <strong>S</strong>tale data is shown instantly from the cache (instant load), a new request is made in the background (slower), and the UI is silently <strong>R</strong>evalidated/updated with the fresh data. The key benefit: <strong>instant perceived loading speed</strong> and automatic data synchronization.</p>
+                            <ul class="list-disc list-inside space-y-2 module-text mt-4">
+                                <li><strong>Automatic Re-fetching</strong>: Libraries automatically re-fetch data on window focus, on network reconnect, and after successful mutations.</li>
+                                <li><strong>Cache Invalidation</strong>: You simply call <code class="font-mono">queryClient.invalidateQueries(['todos'])</code>, flagging the cached data as untrustworthy and triggering an automatic background re-fetch.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: 'Scenario: Robust Optimistic Updates & Rollbacks',
+                        content: `
+                            <p class="module-text mb-3">Optimistic updates offer a superior user experience but are high-risk. You <em>must</em> implement a meticulous rollback mechanism to ensure data consistency if the server fails. The most critical step is **canceling any pending queries** to prevent a successful background fetch from overwriting the temporary, failed optimistic state.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+const mutation = useMutation({
+  // 1. The Mutate Phase (Instant UI update)
+  onMutate: async (newTodo) => {
+    await queryClient.cancelQueries({ queryKey: ['todos'] }); // CRITICAL STEP
+    const snapshot = queryClient.getQueryData(['todos']);
+    queryClient.setQueryData(['todos'], old => [...old, newTodo]);
+    return { snapshot }; // Return the rollback context
+  },
+  // 2. The Rollback Phase (Runs exclusively on error)
+  onError: (err, newTodo, context) => {
+    queryClient.setQueryData(['todos'], context.snapshot); // Restore the cache
+  },
+});
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'api': {
+                title: '7. API Contract Design: REST, GraphQL, and gRPC',
+                sections: [
+                    {
+                        title: 'The API Landscape: Protocol Comparison',
+                        content: `
+                            <p class="module-text mb-3">Understanding when to use each API protocol is crucial for architecting scalable, efficient applications. Choosing the right protocol prevents issues like over-fetching (REST) or high payload sizes (GraphQL).</p>
+                            <ul class="list-disc list-inside space-y-3 module-text mt-4">
+                                <li><strong>REST</strong>: Simple, resource-centric, relies on HTTP verbs. Primary problem: **Over-fetching**.</li>
+                                <li><strong>GraphQL</strong>: Client-defined data fetching, solves over-fetching. Primary problem: Increased server complexity.</li>
+                                <li><strong>gRPC</strong>: Uses HTTP/2 and **Protocol Buffers** (binary serialization). Extremely fast and strongly typed, ideal for internal, latency-sensitive frontends.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: 'API Versioning Strategies',
+                        content: `
+                            <p class="module-text mb-3">When you must introduce a breaking change to the data structure, you need to version your API to prevent breaking older clients (e.g., mobile apps). Never deploy a breaking change without a versioning strategy.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// 1. URI Versioning (Most Common):
+GET /api/v1/products/123   // Old structure
+GET /api/v2/products/123   // New structure
+// 2. Custom Header Versioning (Cleaner URIs):
+GET /api/products/123
+Header: X-Api-Version: 2.0 // API reads the header
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Backend-for-Frontend (BFF) Pattern',
+                        content: `
+                            <p class="module-text mb-3">A **BFF** is a dedicated service layer designed to serve *only* one client application. It solves slow Time To First Byte (TTFB) and reduces unnecessary data transfer by combining multiple internal service calls into one highly optimized, single endpoint for the client. This also allows the BFF to handle client-specific authentication and security, hiding sensitive internal architecture details.</p>
+                        `
+                    }
+                ]
+            },
+            'security': {
+                title: '8. Security & Vulnerabilities: Defense in Depth',
+                sections: [
+                    {
+                        title: 'Cross-Origin Resource Sharing (CORS) Preflights',
+                        content: `
+                            <p class="module-text mb-3">When your frontend makes a "complex" request (one that modifies data, like PUT/DELETE, or uses custom headers), the browser automatically sends a preliminary **CORS Preflight** using the <code class="font-mono">OPTIONS</code> method. This request determines if the server permits the actual cross-origin request. If the server doesn't respond with the correct <code class="font-mono">Access-Control-*</code> headers, the browser **blocks the real request**.</p>
+                        `
+                    },
+                    {
+                        title: 'Content Security Policy (CSP) Nonces',
+                        content: `
+                            <p class="module-text mb-3">CSP is the ultimate defense against XSS (Cross-Site Scripting). Instead of listing every allowed domain, a unique, cryptographically random **Nonce** (number used once) is generated on the server for every page load. Only scripts/styles that match that nonce are allowed to run, effectively stopping XSS attacks.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+Content-Security-Policy: script-src 'nonce-UNIQUE_NONCE_HERE'
+&lt;script nonce="UNIQUE_NONCE_HERE" src="/app.js"&gt;&lt;/script&gt;
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'HSTS and Subresource Integrity (SRI)',
+                        content: `
+                            <p class="module-text mb-3"><strong>HSTS (HTTP Strict Transport Security)</strong> forces the browser to communicate using only HTTPS, preventing SSL stripping. <strong>SRI (Subresource Integrity)</strong> verifies the content of external CDN files using a cryptographic hash. If the hash doesn't match (meaning the file was tampered with), the browser blocks the script from executing, preventing supply chain attacks.</p>
+                        `
+                    }
+                ]
+            },
+            'performance': {
+                title: '9. Performance: The Core Web Vitals Triage',
+                sections: [
+                    {
+                        title: 'Resource Prioritization: Preload, Preconnect, fetchpriority',
+                        content: `
+                            <p class="module-text mb-3">The browser's parser is fast, but it doesn't know your app's dependencies. Use these link relations to explicitly guide resource loading:</p>
+                            <ul class="list-disc list-inside space-y-4 module-text mt-4">
+                                <li><strong>Preconnect</strong>: Initiates an early connection (DNS lookup, TCP handshake, TLS negotiation) to a third-party origin (e.g., Google Fonts) to save time.</li>
+                                <li><strong>Preload</strong>: Tells the browser to download a specific critical resource (like a font or CSS file) needed for the first paint, but that the browser won't discover until later. Single best technique for boosting LCP.</li>
+                                <li><strong>fetchpriority</strong>: An HTML attribute that gives the browser a hint about the importance of a resource fetch (e.g., setting the hero image to <code class="font-mono">high</code>).</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: 'Tackling the INP (Interaction to Next Paint) Score',
+                        content: `
+                            <p class="module-text mb-3">INP measures responsiveness by tracking the latency of all user interactions. The primary cause of poor INP is the **Long Task**—a JavaScript operation that blocks the main thread for more than 50ms. **The fix is work chunking and deferral:**</p>
+                            <ul class="list-disc list-inside space-y-2 module-text mt-4">
+                                <li>**Web Workers**: Offload heavy, synchronous computation (like large JSON parsing) to a background thread so the main thread remains free to handle user input.</li>
+                                <li>**React Concurrent Features**: Using <code class="font-mono">useTransition</code> or <code class="font-mono">Suspense</code> allows React to prioritize urgent state updates over deferred ones.</li>
+                                <li>**<code class="font-mono">requestIdleCallback</code>**: Schedule non-essential, low-priority work to run only during idle periods in the browser's event loop.</li>
+                            </ul>
+                        `
+                    }
+                ]
+            },
+            'testing': {
+                title: '10. Testing & Debugging: MSW and Test-Driven Development',
+                sections: [
+                    {
+                        title: 'Mock Service Worker (MSW): Realistic Network Mocking',
+                        content: `
+                            <p class="module-text mb-3">MSW is a crucial tool that intercepts actual network requests (XHR/Fetch) using a Service Worker. Your application executes its real fetch logic, but MSW returns a mocked response, making your integration tests incredibly realistic, complete with real loading/error states, without ever touching the actual API server.</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// Example MSW Handler: Intercepting a specific request
+import { http, HttpResponse } from 'msw';
+export const handlers = [
+  // Intercepts GET /products
+  http.get('https://api.myapp.com/products', () => {
+    return HttpResponse.json([
+      { id: 1, name: 'Mocked Product' }
+    ], { status: 200 });
+  }),
+];
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'The Test-Driven Development (TDD) Loop',
+                        content: `
+                            <p class="module-text mb-3">TDD is an engineering methodology. It forces a clean separation of concerns and leads to better API design by iterating through the three-step loop: <strong>RED, GREEN, REFACTOR</strong>.</p>
+                            <ul class="list-disc list-inside space-y-2 module-text mt-4">
+                                <li><strong>RED</strong>: Write a failing test, clearly defining the expected public contract.</li>
+                                <li><strong>GREEN</strong>: Write the minimum amount of code necessary to make the test pass. Focus purely on functionality.</li>
+                                <li><strong>REFACTOR</strong>: Clean up the passing code's internal design, secure in the knowledge that your test suite will immediately alert you if you introduce a regression.</li>
+                            </ul>
+                        `
+                    }
+                ]
+            },
+            'tooling': {
+                title: '11. Advanced Tooling & CI/CD: Tree Shaking & Monorepos',
+                sections: [
+                    {
+                        title: 'Tree Shaking and Dead Code Elimination (DCE)',
+                        content: `
+                            <p class="module-text mb-3"><strong>Tree Shaking</strong> is the process where a modern bundler statically analyzes your code to detect and eliminate modules and functions that are imported but never executed. **Crucially, this only works reliably when using ES Module syntax (<code class="font-mono">import/export</code>) because CommonJS (<code class="font-mono">require</code>) makes static analysis nearly impossible.**</p>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// GOOD (Bundler can shake 'subtract' if not used):
+import { add } from './utils';
+const result = add(5, 3);
+// Bundler eliminates unused 'subtract' code from the final output.
+                            </code></pre>
+                        `
+                    },
+                    {
+                        title: 'Monorepos and Remote Build Caching',
+                        content: `
+                            <p class="module-text mb-3">In a monorepo, tools like Nx or Turborepo use **Remote Build Caching**. If you change code in one package, the tool detects if dependent packages *didn't* change, skips the rebuild, and fetches the previously built artifact from a remote cache. This practice often slashes CI build times from hours to minutes, creating massive cost savings.</p>
+                        `
+                    },
+                    {
+                        title: 'Containerization with Docker',
+                        content: `
+                            <p class="module-text mb-3">Docker provides a consistent development and deployment environment. The concept is: **"It works on my machine" is now "It works reproducibly in this Docker container."** This eliminates environmental discrepancies (different Node versions, OS configurations) between local development, staging, and production servers, ensuring a predictable deployment pipeline.</p>
+                        `
+                    }
+                ]
+            },
+            'architecture': {
+                title: '12. Modern Architecture & Future: Signals and Islands',
+                sections: [
+                    {
+                        title: 'The Islands Architecture',
+                        content: `
+                            <p class="module-text mb-3">The Islands pattern (popularized by Astro) renders the majority of the page as static, fast HTML (the "sea"). Only small, highly interactive components (the "islands," like a cart widget) are selectively hydrated with JavaScript. This minimizes the initial JS bundle size and avoids the costly "hydration wall" of traditional SPAs.</p>
+                        `
+                    },
+                    {
+                        title: 'Fine-Grained Reactivity: The Rise of Signals',
+                        content: `
+                            <p class="module-text mb-3">Frameworks like SolidJS and Preact leverage **Signals** for state management. A Signal is a wrapper around a value that can notify all dependent consumers when its value changes. The key benefit is **surgical updates**:</p>
+                            <ul class="list-disc list-inside space-y-2 module-text mt-4">
+                                <li>**Precision**: When a signal updates, *only* the specific text node or DOM element that relies on that signal re-renders, not the whole component tree.</li>
+                                <li>**Simplicity**: You generally don't need manual performance optimization hooks like <code class="font-mono">useMemo</code> or <code class="font-mono">useCallback</code>.</li>
+                            </ul>
+                            <pre class="p-4 rounded-lg overflow-x-auto mt-4"><code>
+// Example Signal Logic
+const count = signal(0);
+// Effect runs only when 'count' changes, updating only the text node.
+effect(() => {
+  document.getElementById('counter-display').textContent = count.value;
+});
+                            </code></pre>
+                        `
+                    }
+                ]
+            },
+            'php': {
+                title: '13. PHP Fundamentals & Beyond',
+                sections: [
+                    {
+                        title: 'Interactive PHP Concepts Explorer',
+                        content: `
+                            <p class="module-text mb-4">Click on a concept below to learn more about its usage in PHP.</p>
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <button class="diagram-btn php-concept-btn" data-concept="variables">Variables</button>
+                                <button class="diagram-btn php-concept-btn" data-concept="functions">Functions</button>
+                                <button class="diagram-btn php-concept-btn" data-concept="classes">Classes</button>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Security Practices',
+                        content: `
+                            <p class="module-text mb-4">Click on a security topic below to learn how to implement it in PHP.</p>
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <button class="diagram-btn php-security-btn" data-security="sql_injection">SQL Injection</button>
+                                <button class="diagram-btn php-security-btn" data-security="xss">XSS</button>
+                            </div>
+                        `
+                    }
+                ]
+            }
+        };
+
+        // --- 5.2. Modal Data and Management ---
+        const modalData = {
+            reactHooks: {
+                useState: {
+                    title: "React Hook: useState",
+                    body: `<p>Manages local state in functional components. Returns the current state value and a setter function.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>const [count, setCount] = useState(0);</code></pre>
+                    <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="20" width="80" height="60" fill="var(--bg-card-default)" stroke="var(--color-primary)" stroke-width="2" rx="5"/>
+                        <text x="50" y="50" text-anchor="middle" fill="var(--text-primary)" font-size="12">State</text>
+                        <circle cx="100" cy="50" r="10" fill="var(--color-secondary)" class="state-circle"/>
+                        <text x="100" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="10">Value</text>
+                        <line x1="90" y1="50" x2="110" y2="50" stroke="var(--color-primary)" stroke-width="2" stroke-dasharray="4"/>
+                    </svg>`
+                },
+                useEffect: {
+                    title: "React Hook: useEffect",
+                    body: `<p>Handles side effects (data fetching, subscriptions, DOM manipulation) after renders.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>useEffect(() => { document.title = 'Updated'; }, [count]);</code></pre>
+                    <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="20" width="80" height="60" fill="var(--bg-card-default)" stroke="var(--color-primary)" stroke-width="2" rx="5"/>
+                        <text x="50" y="50" text-anchor="middle" fill="var(--text-primary)" font-size="12">Component</text>
+                        <circle cx="-10" cy="50" r="5" fill="var(--color-secondary)" class="effect-dot"/>
+                        <text x="100" y="55" fill="var(--text-primary)" font-size="10">Side Effect</text>
+                        <path d="M 90 50 Q 120 30 150 50" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-dasharray="4"/>
+                    </svg>`
+                },
+                useContext: {
+                    title: "React Hook: useContext",
+                    body: `<p>Subscribes to React Context changes, allowing access to shared state without prop drilling.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>const value = useContext(MyContext);</code></pre>`
+                },
+                useReducer: {
+                    title: "React Hook: useReducer",
+                    body: `<p>Alternative to useState for complex state logic that involves multiple sub-values or when the next state depends on the previous one.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>const [state, dispatch] = useReducer(reducer, initialState);</code></pre>`
+                },
+                useMemo: {
+                    title: "React Hook: useMemo",
+                    body: `<p>Calculates a memoized value that only changes when its dependencies change. Useful for performance optimization.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>const memoizedValue = useMemo(() => expensiveCalculation(a, b), [a, b]);</code></pre>`
+                },
+                useCallback: {
+                    title: "React Hook: useCallback",
+                    body: `<p>Calculates a memoized callback function that only changes when its dependencies change. Useful for passing to optimized child components.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>const memoizedCallback = useCallback(() => doSomething(a, b), [a, b]);</code></pre>`
+                }
+            },
+            phpConcepts: {
+                variables: {
+                    title: "PHP Variables",
+                    body: `<p>Variables in PHP start with a $ sign and are case-sensitive.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>&lt;?php
+$myVariable = "Hello, World!";
+$number = 42;
+echo $myVariable;
+?&gt;</code></pre>`
+                },
+                functions: {
+                    title: "PHP Functions",
+                    body: `<p>Functions are defined using the function keyword.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>&lt;?php
+function greet($name) {
+    return "Hello, " . $name . "!";
+}
+echo greet("Alice");
+?&gt;</code></pre>`
+                },
+                classes: {
+                    title: "PHP Classes",
+                    body: `<p>Classes define objects with properties and methods.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>&lt;?php
+class Car {
+    public $color = "red";
+    public function start() {
+        return "Car started!";
+    }
+}
+$myCar = new Car();
+echo $myCar->start();
+?&gt;</code></pre>`
+                }
+            },
+            phpSecurity: {
+                sql_injection: {
+                    title: "Preventing SQL Injection",
+                    body: `<p>Always use prepared statements with PDO or MySQLi to prevent SQL injection.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>&lt;?php
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+?&gt;</code></pre>`
+                },
+                xss: {
+                    title: "Preventing XSS",
+                    body: `<p>Sanitize output using htmlspecialchars() when displaying user data.</p><pre class="p-2 rounded mt-2 bg-gray-800 text-sm"><code>&lt;?php
+echo htmlspecialchars($userInput, ENT_QUOTES, 'UTF-8');
+?&gt;</code></pre>`
+                }
+            }
+        };
+
+        const modalContainer = document.getElementById('modal-container');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseBtn = document.querySelector('.modal-close-btn');
+
+        function showModal(title, body) {
+            modalTitle.textContent = title;
+            modalBody.innerHTML = body; // Set the HTML content including SVG
+            modalContainer.classList.add('active');
+        }
+
+        function hideModal() {
+            modalContainer.classList.remove('active');
+        }
+
+        modalCloseBtn.addEventListener('click', hideModal);
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                hideModal();
+            }
+        });
+
+        // --- 5.3. Core Logic & Theme Management ---
+        const contentContainer = document.getElementById('content-container');
+        const navLinksContainer = document.getElementById('module-links'); // Changed to container
+        const notificationBox = document.getElementById('notification-box');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationClose = document.getElementById('notification-close');
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+        const mainTitle = document.getElementById('main-title');
+
+        let threeD_cleanup = null;
+        let currentModuleCleanup = null;
+        let animationFrameId = null; // For background animation
+
+        /**
+         * Toggles between dark and light themes and saves preference.
+         */
+        function toggleTheme() {
+            const isLight = body.classList.contains('theme-light');
+            if (isLight) {
+                body.classList.remove('theme-light');
+                localStorage.setItem('theme', 'dark');
+                notify('Switched to Dark Mode', 'info');
+            } else {
+                body.classList.add('theme-light');
+                localStorage.setItem('theme', 'light');
+                notify('Switched to Light Mode', 'info');
+            }
+            // Update background gradient angle based on theme
+            updateBackgroundGradient();
+        }
+
+        /**
+         * Updates the background gradient angle based on the current module.
+         */
+        function updateBackgroundGradient() {
+            const currentModule = window.location.hash.substring(1) || 'home';
+            // Map modules to different angles or colors
+            const moduleGradients = {
+                'home': 135,
+                'syntax': 225,
+                'layout': 315,
+                'javascript': 45,
+                'react': 90,
+                'state': 180,
+                'api': 270,
+                'security': 0,
+                'performance': 135,
+                'testing': 225,
+                'tooling': 315,
+                'architecture': 45,
+                'components': 90,
+                'php': 180
+            };
+            const angle = moduleGradients[currentModule] || 135;
+            document.documentElement.style.setProperty('--bg-gradient-angle', `${angle}deg`);
+        }
+
+        /**
+         * Loads the theme preference from localStorage on startup.
+         */
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                body.classList.add('theme-light');
+            }
+        }
+
+        /**
+         * Custom notification function
+         */
+        function notify(message, type = 'success') {
+            if (!notificationBox) return;
+            notificationBox.classList.remove('translate-x-full', 'opacity-0');
+            notificationBox.classList.add('translate-x-0', 'opacity-100');
+            notificationMessage.textContent = message;
+
+            // Clear existing classes
+            notificationBox.className = 'fixed bottom-6 right-6 p-4 rounded-lg shadow-2xl transition duration-500 transform z-50 border font-medium text-sm flex items-center gap-3';
+            let icon = '';
+            if (type === 'error') {
+                notificationBox.classList.add('bg-red-900', 'border-red-700', 'text-white');
+                icon = '<span class="w-3 h-3 rounded-full bg-red-500 shadow-md"></span>';
+            } else if (type === 'info') {
+                notificationBox.classList.add('bg-gray-800', 'border-secondary-accent', 'text-white');
+                icon = '<span class="w-3 h-3 rounded-full bg-secondary-accent shadow-md shadow-yellow-800/50"></span>';
+            } else {
+                notificationBox.classList.add('bg-gray-900', 'border-primary-accent', 'text-white');
+                icon = '<span class="w-3 h-3 rounded-full bg-primary-accent shadow-md shadow-blue-900/50"></span>';
+            }
+            notificationMessage.innerHTML = icon + message;
+        }
+
+        /**
+         * Initializes and runs the 3D scene using Three.js with particles.
+         */
+        function initThreeJS() {
+            if (typeof THREE === 'undefined') return () => {};
+            const container = document.getElementById('three-container');
+            const canvas = document.getElementById('three-js-canvas');
+            if (!canvas || !container) return () => {};
+
+            // 1. Setup Scene, Camera, Renderer
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            scene.fog = new THREE.Fog(0x000000, 1, 15);
+            camera.position.z = 5;
+
+            // 2. Abstract Shape: Detailed Dodecahedron
+            const rootStyle = window.getComputedStyle(document.documentElement);
+            const getPrimaryColor = () => rootStyle.getPropertyValue('--color-primary').trim() || '#3b82f6';
+            const getSecondaryColor = () => rootStyle.getPropertyValue('--color-secondary').trim() || '#facc15';
+            const initialColor = getPrimaryColor();
+
+            // Dodecahedron
+            const geometry = new THREE.DodecahedronGeometry(2, 1); // More segments for detail
+            const material = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(initialColor),
+                emissive: new THREE.Color(initialColor).multiplyScalar(0.2), // Subtle glow
+                specular: new THREE.Color(0xffffff),
+                shininess: 30,
+                transparent: true,
+                opacity: 0.7,
+                wireframe: false
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            // Add wireframe overlay
+            const wireframe = new THREE.WireframeGeometry( geometry );
+            const line = new THREE.LineSegments( wireframe );
+            line.material.depthTest = false;
+            line.material.opacity = 0.25;
+            line.material.transparent = true;
+            line.material.color = new THREE.Color(initialColor);
+            scene.add( line );
+
+            // Function to update color from CSS variable change
+            const updateMeshColor = () => {
+                const newColor = getPrimaryColor();
+                const newSecondary = getSecondaryColor();
+                material.color.set(newColor);
+                material.emissive.set(newColor).multiplyScalar(0.2);
+                line.material.color.set(newColor);
+                pointLight.color.set(newColor);
+                // Also update the scene background color based on theme
+                const isLight = document.body.classList.contains('theme-light');
+                scene.fog.color.set(isLight ? 0xffffff : 0x000000);
+            };
+
+            // 3. Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(initialColor, 5, 50);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            // 4. Particles
+            const particleCount = 50;
+            const particles = new THREE.BufferGeometry();
+            const posArray = new Float32Array(particleCount * 3);
+            const colorArray = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+                posArray[i+1] = (Math.random() - 0.5) * 10;
+                posArray[i+2] = (Math.random() - 0.5) * 10;
+
+                // Random color based on theme
+                const color = new THREE.Color(Math.random() > 0.5 ? initialColor : getSecondaryColor());
+                colorArray[i] = color.r;
+                colorArray[i+1] = color.g;
+                colorArray[i+2] = color.b;
+            }
+
+            particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particles.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+
+            // 5. Animation Loop
+            let frameId = null;
+            const animate = () => {
+                frameId = requestAnimationFrame(animate);
+                mesh.rotation.x += 0.001;
+                mesh.rotation.y += 0.005;
+                line.rotation.x += 0.001;
+                line.rotation.y += 0.005;
+
+                // Pulsate particles
+                const time = Date.now() * 0.001;
+                const positions = particles.attributes.position.array;
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    positions[i+1] = posArray[i+1] + Math.sin(time + i) * 0.05;
+                }
+                particles.attributes.position.needsUpdate = true;
+
+                camera.position.z = 5 + Math.sin(Date.now() * 0.0001) * 0.5;
+                renderer.render(scene, camera);
+            };
+
+            // 6. Responsiveness (Debounced)
+            let resizeTimeout;
+            const handleResize = () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(width, height);
+                }, 250); // Debounce for 250ms
+            };
+            window.addEventListener('resize', handleResize);
+
+            // Watch for body class changes (theme switch) to update color
+            const observer = new MutationObserver(updateMeshColor);
+            observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+            // Cleanup function assigned to global variable
+            threeD_cleanup = () => {
+                cancelAnimationFrame(frameId);
+                window.removeEventListener('resize', handleResize);
+                observer.disconnect();
+                renderer.dispose();
+                geometry.dispose();
+                wireframe.dispose();
+                material.dispose();
+                particleMaterial.dispose();
+                particles.dispose();
+                scene.remove(mesh);
+                scene.remove(line);
+                scene.remove(particleSystem);
+            };
+
+            animate();
+        }
+
+        /**
+         * Initializes the interactive CSS Custom Properties demo.
+         */
+        function initSyntaxDemo() {
+            const colorPickerPrimary = document.getElementById('color-picker-primary');
+            const colorPickerSecondary = document.getElementById('color-picker-secondary');
+            const colorValuePrimarySpan = document.getElementById('current-color-primary-value');
+            const colorValueSecondarySpan = document.getElementById('current-color-secondary-value');
+            const randomizeBtn = document.getElementById('randomize-colors');
+            const root = document.documentElement;
+
+            if (!colorPickerPrimary || !colorPickerSecondary || !colorValuePrimarySpan || !colorValueSecondarySpan || !randomizeBtn) return () => {};
+
+            const updatePrimaryColor = (event) => {
+                const newColor = event.target.value;
+                root.style.setProperty('--color-primary', newColor);
+                colorValuePrimarySpan.textContent = newColor;
+                colorValuePrimarySpan.style.color = newColor;
+                notify(`Primary accent color changed to ${newColor}`, 'info');
+            };
+
+            const updateSecondaryColor = (event) => {
+                const newColor = event.target.value;
+                root.style.setProperty('--color-secondary', newColor);
+                colorValueSecondarySpan.textContent = newColor;
+                colorValueSecondarySpan.style.color = newColor;
+                notify(`Secondary accent color changed to ${newColor}`, 'info');
+            };
+
+            const randomizeColors = () => {
+                const randomColor = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                const newPrimary = randomColor();
+                const newSecondary = randomColor();
+                root.style.setProperty('--color-primary', newPrimary);
+                root.style.setProperty('--color-secondary', newSecondary);
+                colorPickerPrimary.value = newPrimary;
+                colorPickerSecondary.value = newSecondary;
+                colorValuePrimarySpan.textContent = newPrimary;
+                colorValueSecondarySpan.textContent = newSecondary;
+                colorValuePrimarySpan.style.color = newPrimary;
+                colorValueSecondarySpan.style.color = newSecondary;
+                notify(`Colors randomized! Primary: ${newPrimary}, Secondary: ${newSecondary}`, 'info');
+            };
+
+            colorPickerPrimary.addEventListener('input', updatePrimaryColor);
+            colorPickerSecondary.addEventListener('input', updateSecondaryColor);
+            randomizeBtn.addEventListener('click', randomizeColors);
+
+            return () => {
+                colorPickerPrimary.removeEventListener('input', updatePrimaryColor);
+                colorPickerSecondary.removeEventListener('input', updateSecondaryColor);
+                randomizeBtn.removeEventListener('click', randomizeColors);
+            };
+        }
+
+        /**
+         * Initializes the interactive Flex/Grid demo.
+         */
+        function initLayoutDemo() {
+            const container = document.getElementById('responsive-demo-container');
+            const flexBtn = document.getElementById('flex-btn');
+            const gridBtn = document.getElementById('grid-btn');
+            const resetBtn = document.getElementById('reset-layout-btn');
+            const status = document.getElementById('layout-status');
+            const cssApplied = document.getElementById('css-applied');
+            const gapSlider = document.getElementById('gap-slider');
+            const gapValueSpan = document.getElementById('gap-value');
+
+            if (!container || !flexBtn || !gridBtn || !resetBtn || !status || !cssApplied || !gapSlider || !gapValueSpan) return () => {};
+
+            let isFlex = true;
+            const defaultGap = 8;
+
+            const updateLayout = () => {
+                const gapVal = parseInt(gapSlider.value);
+                const gap = `${gapVal}px`;
+                container.style.gap = gap;
+                gapValueSpan.textContent = gap;
+
+                const items = Array.from(container.children);
+                if (isFlex) {
+                    container.style.display = 'flex';
+                    container.style.gridTemplateColumns = 'none';
+                    container.style.flexWrap = 'wrap';
+                    items.forEach(child => {
+                        child.style.flexBasis = `calc(33.33% - ${gapVal * 2 / 3}px)`;
+                        child.textContent = `Item (Flex)`;
+                    });
+                    status.textContent = `Flexbox (Gap: ${gap})`;
+                    cssApplied.textContent = `display: flex; flex-wrap: wrap; gap: ${gap};`;
+                } else {
+                    container.style.display = 'grid';
+                    container.style.gridTemplateColumns = '1fr 2fr 1fr';
+                    container.style.flexWrap = 'nowrap';
+                    items.forEach((child, index) => {
+                        child.style.flexBasis = 'auto';
+                        child.textContent = `Item ${index + 1} (Grid: ${index === 1 ? '2fr' : '1fr'})`;
+                    });
+                    status.textContent = `Grid (1fr 2fr 1fr) (Gap: ${gap})`;
+                    cssApplied.textContent = `display: grid; grid-template-columns: 1fr 2fr 1fr; gap: ${gap};`;
+                }
+            };
+
+            const setFlex = () => { isFlex = true; updateLayout(); };
+            const setGrid = () => { isFlex = false; updateLayout(); };
+            const resetLayout = () => {
+                gapSlider.value = defaultGap;
+                updateLayout();
+            };
+
+            // Event Listeners
+            flexBtn.addEventListener('click', setFlex);
+            gridBtn.addEventListener('click', setGrid);
+            resetBtn.addEventListener('click', resetLayout);
+            gapSlider.addEventListener('input', updateLayout);
+
+            // Initial state
+            updateLayout();
+
+            // Store cleanup function
+            return () => {
+                flexBtn.removeEventListener('click', setFlex);
+                gridBtn.removeEventListener('click', setGrid);
+                resetBtn.removeEventListener('click', resetLayout);
+                gapSlider.removeEventListener('input', updateLayout);
+            };
+        }
+
+        // --- 5.4. Accordion Management and Module Rendering ---
+        /**
+         * Toggles the active state of an accordion card using scrollHeight.
+         * @param {HTMLElement} header The header element that was clicked.
+         */
+        function toggleAccordion(header) {
+            const card = header.closest('.accordion-card');
+            const content = card.querySelector('.accordion-content');
+            const icon = header.querySelector('svg');
+
+            // Collapse all other open cards in the same module
+            document.querySelectorAll('#accordion-container .accordion-content').forEach(openContent => {
+                if (openContent !== content && openContent.style.maxHeight && openContent.style.maxHeight !== '0px') {
+                    openContent.style.maxHeight = '0px';
+                    openContent.closest('.accordion-card').querySelector('svg').style.transform = 'rotate(0deg)';
+                    openContent.previousElementSibling.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Toggle the clicked card using scrollHeight
+            const isExpanded = content.style.maxHeight && content.style.maxHeight !== '0px';
+            if (isExpanded) {
+                // Close
+                content.style.maxHeight = '0px';
+                icon.style.transform = 'rotate(0deg)';
+                header.setAttribute('aria-expanded', 'false');
+            } else {
+                // Open: Use the content's full scrollHeight plus a buffer (padding/margin)
+                const inner = content.querySelector('.accordion-content-inner');
+                content.style.maxHeight = inner.scrollHeight + 60 + 'px';
+                icon.style.transform = 'rotate(180deg)';
+                header.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        /**
+         * Renders the current module content using the accordion structure.
+         * @param {string} moduleId
+         */
+        function loadModule(moduleId) {
+            const moduleData = modules[moduleId];
+            if (!moduleData) {
+                notify("Module not found", 'error');
+                return;
+            }
+
+            // 1. Run cleanup for previous module's JS
+            if (currentModuleCleanup) {
+                currentModuleCleanup();
+                currentModuleCleanup = null;
+            }
+
+            // 2. Cleanup old 3D scene if it exists (for navigation away from home)
+            if (threeD_cleanup && moduleId !== 'home') {
+                threeD_cleanup();
+                threeD_cleanup = null;
+            }
+
+            // 3. Dynamic HTML Generation (Accordion Structure)
+            const displayTitle = moduleData.title.split(': ')[1] || moduleData.title;
+            let htmlContent = `
+                <div class="animate-fade-in-up">
+                    <h2 class="text-3xl font-bold text-var-primary mb-8 border-b border-main pb-4 flex items-center gap-3">
+                        <span class="w-2 h-8 bg-primary-accent rounded-sm"></span>
+                        ${displayTitle}
+                    </h2>
+                    <div id="accordion-container" class="space-y-4">
+            `;
+
+            moduleData.sections.forEach((section, index) => {
+                const isActive = index === 0;
+                htmlContent += `
+                    <div class="accordion-card rounded-xl shadow-lg">
+                        <div class="accordion-header p-4 md:p-6 text-xl font-semibold rounded-xl flex justify-between items-center transition duration-200"
+                            data-section-index="${index}" role="button" aria-expanded="${isActive ? 'true' : 'false'}" aria-controls="content-${index}">
+                            <span>${section.title}</span>
+                            <svg class="w-6 h-6 transform transition-transform duration-300 text-primary-accent"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                                style="transform: rotate(${isActive ? '180deg' : '0deg'});">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        <div id="content-${index}" class="accordion-content" style="max-height: 0;">
+                            <div class="accordion-content-inner p-6">
+                                ${section.content}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `</div></div>`;
+            contentContainer.innerHTML = htmlContent;
+
+            // 4. Attach Accordion Listeners and Open Default
+            const headers = document.querySelectorAll('#accordion-container .accordion-header');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => toggleAccordion(header));
+                if (index === 0) {
+                    const content = header.nextElementSibling;
+                    const inner = content.querySelector('.accordion-content-inner');
+                    content.style.maxHeight = inner.scrollHeight + 60 + 'px';
+                }
+            });
+
+            // 5. --- Module-specific Hooks and Interactive Element Init ---
+            if (moduleId === 'home') {
+                setTimeout(initThreeJS, 50);
+                // Initialize theme customizer
+                const primaryColorPicker = document.getElementById('primary-color-picker');
+                const secondaryColorPicker = document.getElementById('secondary-color-picker');
+                const currentPrimaryValue = document.getElementById('current-primary-color-value');
+                const currentSecondaryValue = document.getElementById('current-secondary-color-value');
+                const randomizeThemeBtn = document.getElementById('randomize-theme-btn');
+
+                if (primaryColorPicker && secondaryColorPicker && currentPrimaryValue && currentSecondaryValue && randomizeThemeBtn) {
+                    const root = document.documentElement;
+
+                    const updatePrimaryColor = (event) => {
+                        const newColor = event.target.value;
+                        root.style.setProperty('--color-primary', newColor);
+                        currentPrimaryValue.textContent = newColor;
+                        currentPrimaryValue.style.color = newColor;
+                        notify(`Primary theme color changed to ${newColor}`, 'info');
+                    };
+
+                    const updateSecondaryColor = (event) => {
+                        const newColor = event.target.value;
+                        root.style.setProperty('--color-secondary', newColor);
+                        currentSecondaryValue.textContent = newColor;
+                        currentSecondaryValue.style.color = newColor;
+                        notify(`Secondary theme color changed to ${newColor}`, 'info');
+                    };
+
+                    const randomizeTheme = () => {
+                        const randomColor = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                        const newPrimary = randomColor();
+                        const newSecondary = randomColor();
+                        root.style.setProperty('--color-primary', newPrimary);
+                        root.style.setProperty('--color-secondary', newSecondary);
+                        primaryColorPicker.value = newPrimary;
+                        secondaryColorPicker.value = newSecondary;
+                        currentPrimaryValue.textContent = newPrimary;
+                        currentSecondaryValue.textContent = newSecondary;
+                        currentPrimaryValue.style.color = newPrimary;
+                        currentSecondaryValue.style.color = newSecondary;
+                        notify(`Theme colors randomized! Primary: ${newPrimary}, Secondary: ${newSecondary}`, 'info');
+                    };
+
+                    primaryColorPicker.addEventListener('input', updatePrimaryColor);
+                    secondaryColorPicker.addEventListener('input', updateSecondaryColor);
+                    randomizeThemeBtn.addEventListener('click', randomizeTheme);
+                }
+            }
+            if (moduleId === 'layout') {
+                currentModuleCleanup = initLayoutDemo();
+            }
+            if (moduleId === 'syntax') {
+                currentModuleCleanup = initSyntaxDemo();
+            }
+            if (moduleId === 'react') {
+                // Attach event listeners for React hook buttons
+                document.querySelectorAll('.react-hook-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const hookName = btn.getAttribute('data-hook');
+                        const data = modalData.reactHooks[hookName];
+                        if (data) showModal(data.title, data.body);
+                    });
+                });
+            }
+            if (moduleId === 'php') {
+                // Attach event listeners for PHP diagram buttons
+                document.querySelectorAll('.php-concept-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const conceptName = btn.getAttribute('data-concept');
+                        const data = modalData.phpConcepts[conceptName];
+                        if (data) showModal(data.title, data.body);
+                    });
+                });
+                document.querySelectorAll('.php-security-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const securityName = btn.getAttribute('data-security');
+                        const data = modalData.phpSecurity[securityName];
+                        if (data) showModal(data.title, data.body);
+                    });
+                });
+            }
+
+            // 6. Nav State Update
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-white/10', 'text-var-primary', 'active-glow');
+                link.classList.add('text-var-secondary', 'hover:bg-white/5', 'hover:text-var-primary');
+            });
+            const active = document.querySelector(`.nav-link[data-module="${moduleId}"]`);
+            if (active) {
+                active.classList.add('bg-white/10', 'text-var-primary', 'active-glow');
+                active.classList.remove('text-var-secondary', 'hover:bg-white/5');
+            }
+
+            // 7. Update background gradient and scroll to top
+            updateBackgroundGradient();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Navigation Logic (Event Delegation)
+        navLinksContainer.addEventListener('click', function(e) {
+            const link = e.target.closest('.nav-link');
+            if (link) {
+                const id = link.getAttribute('data-module');
+                history.pushState({ module: id }, '', `#${id}`);
+                loadModule(id);
+            }
+        });
+
+        // Theme Toggle Logic
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Notification Close Logic
+        notificationClose.addEventListener('click', () => {
+            notificationBox.classList.remove('translate-x-0', 'opacity-100');
+            notificationBox.classList.add('translate-x-full', 'opacity-0');
+        });
+
+        // Title Easter Egg
+        let clickCount = 0;
+        let clickTimeout;
+        mainTitle.addEventListener('dblclick', () => {
+            mainTitle.classList.add('title-glow');
+            setTimeout(() => mainTitle.classList.remove('title-glow'), 500);
+        });
+
+        // Initial Load
+        function init() {
+            loadThemePreference();
+            updateBackgroundGradient(); // Set initial gradient
+            const hash = window.location.hash.substring(1);
+            loadModule(modules[hash] ? hash : 'home');
+        }
+
+        window.addEventListener('popstate', (e) => loadModule(e.state ? e.state.module : 'home'));
+        init();
+
+        // Custom animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-up {
+                animation: fadeInUp 0.4s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

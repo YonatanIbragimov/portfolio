@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C++ Learning Hub: Pro Edition (Vibrant UI)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* --- COLOR VARIABLES (LIGHT MODE DEFAULT) --- */
+    :root {
+      /* Base Colors */
+      --color-bg-body: #f7f9fc;          /* Light, clean background */
+      --color-bg-panel: #ffffff;
+      --color-text-primary: #1e2a38;     /* Dark Navy/Slate */
+      --color-text-secondary: #5e6d85;   /* Grayish blue */
+      /* Accent Colors (Vibrant & Fun) */
+      --color-accent-main: #007bff;      /* Vibrant Blue */
+      --color-accent-teal: #1abc9c;      /* Teal/Mint */
+      --color-accent-warning: #f1c40f;   /* Warm Gold */
+      --color-accent-hot: #e74c3c;       /* Red */
+      /* Navigation/TOC */
+      --color-nav-bg: #eaf3ff;           /* Very light blue navigation */
+      --color-nav-link: var(--color-text-primary);
+      --color-nav-active-bg: var(--color-accent-main);
+      --color-nav-active-text: #ffffff;
+      --color-nav-border: #dbe4f0;
+      /* Code Block */
+      --color-code-bg: #2c3e50;
+      --color-code-text: #ecf0f1;
+      --color-code-keyword: #ff7675;     /* Salmon */
+      --color-code-function: #5dade2;    /* Light Blue */
+      --color-code-comment: #7f8c8d; 
+      --color-code-data: #f1c40f;        /* Yellow */
+      
+      /* New UI/Animation Variables */
+      --shadow-soft: 0 4px 12px rgba(0,0,0,0.05);
+      --shadow-hover: 0 8px 16px rgba(0,0,0,0.15);
+      --transition-speed: 0.3s;
+    }
+    /* --- DARK MODE OVERRIDES --- */
+    .dark-mode {
+      /* Base Colors */
+      --color-bg-body: #1a202c; 
+      --color-bg-panel: #2d3748;
+      --color-text-primary: #f7fafc; 
+      --color-text-secondary: #a0aec0; 
+      /* Accent Colors (Brighter for Dark BG) */
+      --color-accent-main: #4299e1; 
+      --color-accent-teal: #48bb78; 
+      --color-accent-warning: #f6ad55; 
+      --color-accent-hot: #f56565; 
+      /* Navigation/TOC */
+      --color-nav-bg: #212936; 
+      --color-nav-link: #cbd5e0;
+      --color-nav-active-bg: #4299e1;
+      --color-nav-active-text: #1a202c;
+      --color-nav-border: #4a5568;
+      /* Code Block */
+      --color-code-bg: #1e272e;
+      --color-code-text: #d5dbdb;
+      --color-code-keyword: #f5b041; 
+      --color-code-function: #ff7675; 
+      --color-code-comment: #7f8c8d; 
+      --color-code-data: #58d68d; 
+    }
+
+    /* --- GLOBAL & TYPOGRAPHY --- */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--color-bg-body); 
+      color: var(--color-text-primary);
+      line-height: 1.7; /* Better readability */
+      font-family: 'Poppins', sans-serif; 
+      font-size: 17px; /* Slightly larger base font */
+      min-height: 100vh;
+      transition: background var(--transition-speed), color var(--transition-speed); 
+    }
+    h2, h3 {
+        color: var(--color-accent-main);
+        font-weight: 700;
+        margin-top: 1.5em;
+        padding-bottom: 5px;
+        border-bottom: 2px solid var(--color-nav-border);
+        transition: color var(--transition-speed);
+    }
+    a {
+        color: var(--color-accent-teal);
+        text-decoration: none;
+        transition: color var(--transition-speed);
+    }
+    a:hover { 
+        text-decoration: underline; 
+        color: var(--color-accent-main);
+    }
+
+    /* --- SCROLLBAR STYLING (Nicer Look) --- */
+    .nav-toc::-webkit-scrollbar, .content-area::-webkit-scrollbar { width: 8px; height: 8px; }
+    .nav-toc::-webkit-scrollbar-track, .content-area::-webkit-scrollbar-track { background: var(--color-bg-body); border-radius: 10px; }
+    .nav-toc::-webkit-scrollbar-thumb, .content-area::-webkit-scrollbar-thumb {
+        background: var(--color-accent-teal); /* Teal scrollbar */
+        border-radius: 10px;
+        border: 2px solid var(--color-bg-body); 
+        transition: background var(--transition-speed);
+    }
+    .dark-mode .nav-toc::-webkit-scrollbar-thumb, .dark-mode .content-area::-webkit-scrollbar-thumb {
+        border: 2px solid var(--color-bg-panel);
+    }
+    .nav-toc::-webkit-scrollbar-thumb:hover, .content-area::-webkit-scrollbar-thumb:hover { background: var(--color-accent-main); }
+    .nav-toc, .content-area { scrollbar-color: var(--color-accent-teal) var(--color-bg-body); scrollbar-width: thin; }
+
+    /* --- HEADER & LAYOUT (RESPONSIVENESS) --- */
+    header {
+      background: var(--color-bg-panel);
+      padding: 15px 30px;
+      box-shadow: var(--shadow-soft);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background var(--transition-speed);
+      border-bottom: 3px solid var(--color-accent-main); /* Strong line */
+    }
+    #main-header-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    .current-module-badge {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-left: 15px;
+        padding: 5px 12px;
+        background: var(--color-accent-teal);
+        color: white;
+        border-radius: 20px;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity var(--transition-speed) ease-out, transform var(--transition-speed) ease-out;
+    }
+    .current-module-badge.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .content-wrapper {
+      display: flex;
+      max-width: 1600px;
+      margin: 0 auto;
+      min-height: calc(100vh - 70px); 
+      box-shadow: var(--shadow-soft);
+    }
+    
+    /* Mobile/Tablet Navigation Toggle */
+    #nav-toggle-button {
+        display: none; /* Hidden on desktop */
+        background: var(--color-accent-main);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        order: -1; /* Place before theme toggle on mobile */
+    }
+    #nav-toggle-button:hover { transform: scale(1.05); }
+
+    .nav-toc {
+      flex: 0 0 350px;
+      background: var(--color-nav-bg); 
+      border-right: 1px solid var(--color-nav-border);
+      padding: 20px 0;
+      position: sticky;
+      top: 70px; 
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+      transition: background var(--transition-speed);
+      /* Add animation for nav categories */
+    }
+    
+    .nav-toc h4 { 
+        padding: 10px 20px 5px; 
+        color: var(--color-text-secondary); 
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .nav-toc ul { padding: 0; margin: 0; list-style: none; }
+    .nav-toc li a {
+      padding: 12px 25px;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      color: var(--color-nav-link);
+      border-left: 5px solid transparent;
+      transition: background 0.2s, color 0.2s, border-left 0.2s, transform 0.1s;
+    }
+    .nav-toc li a:hover {
+        background: rgba(0, 123, 255, 0.1);
+        color: var(--color-accent-main);
+        transform: translateX(5px);
+        text-decoration: none;
+    }
+    .nav-toc li a.completed::after {
+      content: '✔';
+      color: var(--color-accent-teal);
+      font-size: 0.9rem;
+    }
+    .nav-toc li a.active {
+        background: var(--color-nav-active-bg); 
+        color: var(--color-nav-active-text);
+        border-left: 5px solid var(--color-accent-teal); 
+        font-weight: 600;
+        box-shadow: inset 3px 0 15px rgba(0,0,0,0.2);
+    }
+    .nav-toc li a.active:hover {
+        background: var(--color-nav-active-bg); 
+        color: var(--color-nav-active-text);
+        transform: none;
+    }
+    
+    .content-area {
+      flex: 1;
+      padding: 40px 60px; 
+      background: var(--color-bg-panel);
+      transition: background var(--transition-speed);
+      overflow-y: auto;
+      /* Animation for module switch */
+      position: relative; 
+      transform: translateZ(0);
+    }
+    
+    .module-page { 
+        display: none; 
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    .module-page.active { 
+        display: block; 
+        opacity: 1; 
+        transform: translateY(0);
+    }
+
+    /* --- UTILITY CLASSES --- */
+    .module-summary {
+      background: rgba(0, 123, 255, 0.05); /* Very light blue info box */
+      padding: 18px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid var(--color-accent-main);
+      box-shadow: var(--shadow-soft);
+    }
+    .tip, .warning {
+        padding: 18px;
+        margin: 25px 0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-shadow: var(--shadow-soft);
+    }
+    .tip { 
+        background: rgba(26, 188, 156, 0.1); /* Light Teal */
+        border-left: 5px solid var(--color-accent-teal);
+    }
+    .warning {
+        background: rgba(231, 76, 60, 0.05); 
+        border-left: 5px solid var(--color-accent-hot);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .warning:hover {
+        background: rgba(231, 76, 60, 0.15);
+    }
+    .warning pre { display: none; margin-top: 15px; }
+    .warning.expanded pre { display: block; }
+    
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge-modern { background: var(--color-accent-main); color: white; }
+    .badge-oop { background: #9b59b6; color: white; } /* Purple */
+    .badge-data { background: var(--color-accent-teal); color: var(--color-code-bg); }
+
+    /* --- CODE & SIMULATION STYLES --- */
+    .code-box {
+      background: var(--color-code-bg); 
+      border-radius: 8px;
+      padding: 20px; 
+      margin: 20px 0 30px 0;
+      font-family: 'Fira Code', monospace; 
+      font-size: 0.9rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      color: var(--color-code-text);
+      box-shadow: var(--shadow-hover);
+    }
+    /* Interactive Simulation Box */
+    .simulation-box {
+        border: 2px solid var(--color-accent-main);
+        background: var(--color-nav-bg);
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 10px;
+        color: var(--color-text-primary);
+        box-shadow: var(--shadow-soft);
+    }
+    .simulation-box input[type="number"], .simulation-box input[type="text"] {
+        padding: 10px;
+        margin: 5px 10px 15px 0;
+        border: 1px solid var(--color-nav-border);
+        border-radius: 6px;
+        background: var(--color-bg-panel);
+        color: var(--color-text-primary);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .simulation-box input:focus {
+        border-color: var(--color-accent-main);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        outline: none;
+    }
+    .simulation-box button {
+        background: var(--color-accent-teal);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s, transform 0.2s;
+    }
+    .simulation-box button:hover { 
+        background: #159c83;
+        transform: translateY(-2px);
+    }
+    .simulation-output {
+        min-height: 60px;
+        background: var(--color-code-bg);
+        color: var(--color-code-text);
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 6px;
+        font-family: 'Fira Code', monospace;
+        white-space: pre-wrap;
+    }
+
+    /* --- LOOP ANIMATION STYLES (Module 5) --- */
+    #m5_code_visual div {
+        transition: background 0.3s ease, border-left 0.3s ease, font-weight 0.1s;
+    }
+    #m5_code_visual .highlight-init { background: rgba(255, 118, 117, 0.3); border-left: 6px solid var(--color-code-keyword); }
+    #m5_code_visual .highlight-cond, #m5_code_visual .highlight-inc { background: rgba(241, 196, 15, 0.3); border-left: 6px solid var(--color-accent-warning); }
+    #m5_code_visual .highlight-body { background: rgba(46, 204, 113, 0.3); border-left: 6px solid var(--color-accent-teal); }
+    
+    /* --- QUIZ STYLES --- */
+    .quiz-box {
+        border: 2px dashed var(--color-accent-teal);
+        background: rgba(46, 204, 113, 0.1);
+        padding: 25px;
+        margin-top: 30px;
+        border-radius: 10px;
+    }
+    .quiz-box label { 
+        display: block; 
+        margin: 10px 0; 
+        cursor: pointer;
+        transition: background 0.1s;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .quiz-box label:hover {
+        background: rgba(46, 204, 113, 0.05);
+    }
+    .quiz-box input[type="radio"] { margin-right: 10px; accent-color: var(--color-accent-teal); }
+    
+    /* --- MEDIA QUERIES (RESPONSIVENESS) --- */
+    @media (max-width: 1100px) {
+        /* Adjust padding for slightly smaller screens */
+        .content-area { padding: 30px 40px; }
+        .nav-toc { flex: 0 0 300px; }
+    }
+
+    @media (max-width: 850px) {
+        /* Mobile Layout */
+        header { padding: 15px 20px; }
+        #main-header-title { font-size: 1.2rem; }
+        .current-module-badge { display: none; } /* Hide for space on mobile */
+        
+        #nav-toggle-button { display: block; }
+
+        .content-wrapper { 
+            flex-direction: column; 
+            box-shadow: none; 
+        }
+
+        .nav-toc {
+            position: fixed; /* Fixed overlay */
+            left: 0;
+            top: 67px; 
+            width: 80vw; /* Take up 80% of viewport width */
+            max-width: 400px;
+            height: calc(100vh - 67px);
+            border-right: none;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            z-index: 90;
+            
+            /* Animation to hide off-screen */
+            transform: translateX(-100%);
+            transition: transform 0.4s ease-out;
+        }
+
+        .nav-toc.open {
+            transform: translateX(0); /* Slide in */
+        }
+
+        .content-area {
+            padding: 20px;
+            width: 100%;
+            min-height: calc(100vh - 67px);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        /* Extra small mobile adjustments */
+        .simulation-box input[type="number"], .simulation-box input[type="text"], .simulation-box button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .simulation-box input:last-of-type {
+            margin-right: 0;
+        }
+        .content-area { padding: 15px; }
+        .nav-toc { width: 95vw; } /* Almost full width overlay */
+    }
+
+    /* --- THEME TOGGLE STYLES (Refined) --- */
+    #theme-toggle {
+        background: var(--color-nav-bg); 
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-nav-border);
+        padding: 0; 
+        font-size: 1.2rem; 
+        border-radius: 50%; 
+        cursor: pointer;
+        transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+        width: 45px; 
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-soft);
+        line-height: 1;
+    }
+    #theme-toggle:hover {
+        background: var(--color-nav-border);
+        transform: scale(1.05) rotate(5deg);
+        box-shadow: var(--shadow-hover);
+    }
+    .dark-mode #theme-toggle {
+        background: var(--color-nav-border);
+        color: var(--color-accent-warning); 
+        border: 1px solid var(--color-accent-main);
+    }
+
+    /* --- SEARCH BAR STYLES (Refined) --- */
+    #search-container {
+        position: relative;
+        width: 90%;
+        margin: 0 0 15px 20px;
+    }
+    #toc-search {
+      width: 100%; 
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--color-nav-border);
+      background: var(--color-bg-panel);
+      color: var(--color-text-primary);
+      box-sizing: border-box; 
+      transition: border-color 0.2s;
+    }
+    #toc-search:focus {
+        border-color: var(--color-accent-teal);
+        outline: none;
+    }
+    .search-results-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-bg-panel);
+        border: 1px solid var(--color-nav-border);
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        box-shadow: var(--shadow-hover);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 50;
+        display: none;
+    }
+    .search-result-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        display: block;
+        color: var(--color-text-primary);
+        font-size: 0.95rem;
+        border-bottom: 1px solid var(--color-nav-bg);
+        transition: background 0.2s, color 0.2s;
+    }
+    .search-result-item:hover {
+        background: var(--color-accent-teal);
+        color: var(--color-nav-active-text);
+        text-decoration: none;
+    }
+    .search-result-item strong { color: var(--color-accent-main); }
+    .search-result-item:hover strong { color: var(--color-nav-active-text); }
+    .search-result-item .module-id { float: right; color: var(--color-text-secondary); font-size: 0.8em; }
+    .search-result-item:hover .module-id { color: rgba(255, 255, 255, 0.7); }
+
+  </style>
+</head>
+<body onload="initApp();">
+  <header>
+    <h1 id="main-header-title">
+        C++ LEARNING HUB
+        <span id="current-module-badge" class="current-module-badge"></span>
+    </h1>
+    <div class="header-controls">
+        <button id="nav-toggle-button" onclick="toggleNav()">☰</button>
+        <button id="theme-toggle" onclick="toggleTheme()" title="Switch Theme">☀️</button>
+    </div>
+  </header>
+  <div class="content-wrapper">
+    <nav class="nav-toc" id="nav-toc">
+        <div id="search-container">
+            <input type="text" id="toc-search" placeholder="Search modules and content..." autocomplete="off">
+            <div id="search-results" class="search-results-dropdown"></div>
+        </div>
+        
+        <h4>Core Fundamentals</h4>
+        <ul>
+            <li><a id="nav-module1" onclick="showModule('module1')">1. Program Structure & Setup</a></li>
+            <li><a id="nav-module2" onclick="showModule('module2')">2. Variables, Types & Modern `auto`</a></li>
+            <li><a id="nav-module3" onclick="showModule('module3')">3. Functions & Pass-by-`const&`</a></li>
+            <li><a id="nav-module4" onclick="showModule('module4')">4. If/Else & Initializer (C++17)</a></li>
+            <li><a id="nav-module5" onclick="showModule('module5')">5. Loops & Range-Based Iteration</a></li>
+        </ul>
+        <h4>Data Structures & Memory <span class="badge badge-data">DATA</span></h4>
+        <ul>
+            <li><a id="nav-module7" onclick="showModule('module7')">7. Vectors (Efficiency & Safety)</a></li>
+            <li><a id="nav-module8" onclick="showModule('module8')">8. Structs and Scoped Enums</a></li>
+            <li><a id="nav-module9" onclick="showModule('module9')">9. **Smart Pointers & RAII**</a></li>
+            <li><a id="nav-module11" onclick="showModule('module11')">11. Const Correctness & References</a></li>
+        </ul>
+        <h4>Object-Oriented Programming <span class="badge badge-oop">OOP</span></h4>
+        <ul>
+            <li><a id="nav-module10" onclick="showModule('module10')">10. Classes, Constructors, & Rule of 5</a></li>
+            <li><a id="nav-module12" onclick="showModule('module12')">12. Operator Overloading</a></li>
+            <li><a id="nav-module14" onclick="showModule('module14')">14. Inheritance, Virtual Destructors</a></li>
+        </ul>
+        <h4>Advanced C++ <span class="badge badge-modern">C++11/17/20</span></h4>
+        <ul>
+            <li><a id="nav-module13" onclick="showModule('module13')">13. File I/O (Robust Streams)</a></li>
+            <li><a id="nav-module15" onclick="showModule('module15')">15. Templates & Concepts (C++20)</a></li>
+            <li><a id="nav-module16" onclick="showModule('module16')">16. Exception Handling</a></li>
+            <li><a id="nav-module17" onclick="showModule('module17')">17. Lambdas & STL Algorithms</a></li>
+            <li><a id="nav-module18" onclick="showModule('module18')">18. **Move Semantics & R-values**</a></li>
+            <li><a id="nav-module19" onclick="showModule('module19')">19. **Concurrency, Threads & Futures**</a></li>
+            <li><a id="nav-module20" onclick="showModule('module20')">20. **Modern Utilities (Optional, Tuple)**</a></li>
+        </ul>
+        <h4>The Project</h4>
+        <ul>
+            <li><a id="nav-module6" onclick="showModule('module6')">**6. Ultimate Adventure 🌟**</a></li>
+        </ul>
+        <div style="padding: 20px; margin-top: 20px;">
+            <div class="tip" style="margin-top: 10px; border-left-color: var(--color-accent-warning);">
+                <strong>Focus on the Rules!</strong>
+                <p>The **Rule of Zero** is the modern goal: avoid manual memory management by using Smart Pointers and RAII.</p>
+            </div>
+        </div>
+    </nav>
+    <main class="content-area">
+        <section id="module1" class="module-page">
+            <h2 class="section-title">MODULE 1: PROGRAM STRUCTURE & SETUP</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The standardized structure of a C++ program.</li>
+                <li>The difference between <code>#include &lt;header&gt;</code> and <code>#include "header.h"</code>.</li>
+                <li>Best practices for <code>main()</code> return value.</li>
+              </ul>
+            </div>
+            <h3>1.1 The Anatomy of a C++ Program</h3>
+            <p>Every minimal C++ program must define a **main function**, which is the entry point for the operating system. We use **preprocessor directives** (starting with `#`) to include external functionality.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;iostream&gt; <span class="comment">// 1. Standard Library Header (always use angle brackets)</span>
+<span class="keyword">int</span> <span class="function">main</span>() { <span class="comment">// 2. The main function: Must return an int.</span>
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Hello, Modern C++!"</span> &lt;&lt; <span class="variable">std::endl</span>; <span class="comment">// 3. Output Statement</span>
+    <span class="keyword">return</span> 0; <span class="comment">// 4. Return 0: Signifies successful execution. Non-zero indicates an error.</span>
+}</pre>
+            </div>
+            <div class="warning">
+              <strong>🚨 C++ Standard Library vs. Local Headers</strong>
+              <p>Use angle brackets (`&lt;iostream&gt;`) for standard library headers. Use quotes (`"myclass.h"`) for your own local project files. Mixing them up causes compilation errors.</p>
+            </div>
+            <h3>1.2 Avoiding `using namespace std;`</h3>
+            <p>While `using namespace std;` is often shown in simple examples, it pollutes the global namespace. In modern, professional code, it's a best practice to use `std::` explicitly, or use declarations to only bring in necessary components.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">cout</span>; <span class="comment">// Better: Only import 'cout' and 'endl'</span>
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">endl</span>; 
+
+<span class="keyword">int</span> <span class="function">main</span>() { 
+    <span class="variable">cout</span> &lt;&lt; <span class="string">"This is cleaner than using namespace std."</span> &lt;&lt; <span class="variable">endl</span>;
+    <span class="keyword">return</span> 0; 
+}</pre>
+            </div>
+        </section>
+
+        <section id="module2" class="module-page">
+            <h2 class="section-title">MODULE 2: VARIABLES, TYPES & MODERN `auto`</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>C++ primitive data types and type safety.</li>
+                <li>The modern use of `auto` for cleaner code (C++11).</li>
+                <li>How to read user input with <code>std::cin</code>.</li>
+              </ul>
+            </div>
+            <h3>2.1 Primitive Data Types & Strong Typing</h3>
+            <p>C++ is strongly typed. Variables must be declared with a specific type (`int`, `double`, `bool`, etc.), which determines the memory allocated and the operations allowed. Always prefer **uniform initialization** (`{}`) to prevent narrowing conversions.</p>
+            <div class="code-box">
+<pre><span class="datatype">int</span> <span class="variable">count</span>{10}; <span class="comment">// Uniform initialization (preferred)</span>
+<span class="datatype">double</span> <span class="variable">ratio</span>{0.55};
+<span class="keyword">const</span> <span class="variable">std::string</span> <span class="variable">NAME</span> = <span class="string">"Alice"</span>; <span class="comment">// const makes the variable immutable</span></pre>
+            </div>
+            <h3>2.2 The `auto` Keyword (Type Deduction) <span class="badge badge-modern">C++11</span></h3>
+            <p>The **`auto`** keyword deduces the type of a variable from its initializer. It significantly improves readability, especially for complex types like iterators or lambda functions, without sacrificing type safety.</p>
+            <div class="code-box">
+<pre><span class="keyword">auto</span> <span class="variable">integer_val</span> = 42; <span class="comment">// Type is deduced as 'int'</span>
+<span class="keyword">auto</span> <span class="variable">floating_point</span> = 3.14159f; <span class="comment">// Type is deduced as 'float' (due to 'f' suffix)</span>
+<span class="keyword">auto</span> <span class="variable">complex_type</span> = <span class="variable">std::vector</span>&lt;<span class="datatype">int</span>&gt;{1, 2}; <span class="comment">// Deducted as std::vector<int></span></pre>
+            </div>
+            <div class="tip">
+                **Best Practice:** Use `auto` when the type is obvious from the initializer. Avoid it when the resulting type is non-obvious to the reader.
+            </div>
+            <h3>2.3 Taking User Input (`std::cin`)</h3>
+            <p>`std::cin` reads data from the standard input (usually the keyboard). It automatically attempts to convert the input to the target variable's type. This is why **type safety** is crucial!</p>
+            <div class="simulation-box">
+                <h4>Interactive Variable Calculator</h4>
+                <p>Enter two numbers to see the sum:</p>
+                <input type="number" id="m2_num1" placeholder="Number 1">
+                <input type="number" id="m2_num2" placeholder="Number 2">
+                <button onclick="simulate_m2_calc()">Calculate Sum</button>
+                <div id="m2_output" class="simulation-output"></div>
+            </div>
+        </section>
+
+        <section id="module3" class="module-page">
+            <h2 class="section-title">MODULE 3: FUNCTIONS & PASS-BY-`CONST&`</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>Function prototypes and the linker's role.</li>
+                <li>The difference between pass-by-value and pass-by-reference.</li>
+                <li>Why `const&` (constant reference) is the preferred way to pass large objects.</li>
+                <li>The safety attribute `[[nodiscard]]` (C++17).</li>
+              </ul>
+            </div>
+            <h3>3.1 Definition, Declaration, and Prototypes</h3>
+            <p>A **function prototype** (declaration) allows a function to be called before its full **definition** (implementation) is seen by the compiler. Prototypes are often placed in header files (`.h`) while definitions are in source files (`.cpp`).</p>
+            <div class="code-box">
+<pre><span class="comment">// Function Prototype (Declaration) - in a .h file</span>
+<span class="datatype">int</span> <span class="function">calculate_area</span>(<span class="datatype">int</span> <span class="variable">width</span>, <span class="datatype">int</span> <span class="variable">height</span>); 
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    <span class="comment">// Compiler knows 'calculate_area' exists due to the prototype.</span>
+    <span class="keyword">auto</span> <span class="variable">area</span> = <span class="function">calculate_area</span>(10, 5); 
+    <span class="keyword">return</span> 0;
+}
+<span class="comment">// Function Definition (Implementation) - in a .cpp file</span>
+<span class="datatype">int</span> <span class="function">calculate_area</span>(<span class="datatype">int</span> <span class="variable">width</span>, <span class="datatype">int</span> <span class="variable">height</span>) { 
+    <span class="keyword">return</span> <span class="variable">width</span> * <span class="variable">height</span>;
+}</pre>
+            </div>
+            <h3>3.2 Pass-by-Value vs. Pass-by-`const&`</h3>
+            <p>For small, primitive types (like `int`), **Pass-by-Value** is fine. For custom or large objects (like `std::string` or `std::vector`), copying is expensive. The **Pass-by-`const&`** pattern is the modern standard for safety and speed.</p>
+            <ul>
+                <li>**Pass-by-Value:** Makes a copy. Safe, but slow for large objects.</li>
+                <li>**Pass-by-`const&`:** Passes a **reference** to the original object, avoiding a copy (fast), but `const` prevents modification (safe).</li>
+            </ul>
+            <div class="code-box">
+<pre><span class="comment">// The modern, efficient, and safe way to pass large objects (Rule of Thumb)</span>
+<span class="keyword">void</span> <span class="function">process_data</span>(<span class="keyword">const</span> <span class="variable">std::vector</span>&lt;<span class="datatype">int</span>&gt;&amp; <span class="variable">v</span>) { 
+    <span class="comment">// 'v' is not copied (Fast), and cannot be modified (Safe).</span>
+    <span class="comment">// ... read-only logic ...</span>
+} </pre>
+            </div>
+            <div class="tip">
+              **Safety Attribute: `[[nodiscard]]` (C++17)**
+              <p>Place this attribute before a function to generate a warning if the caller ignores the function's return value. Crucial for functions that return error codes or status updates.</p>
+            </div>
+        </section>
+
+        <section id="module4" class="module-page">
+            <h2 class="section-title">MODULE 4: IF/ELSE & INITIALIZER (C++17)</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>Using <code>if</code>, <code>else if</code>, and <code>else</code> for control flow.</li>
+                <li>Logical operators (<code>&&</code>, <code>||</code>, <code>!</code>).</li>
+                <li>The modern **`if` with initializer** statement (C++17).</li>
+              </ul>
+            </div>
+            <h3>4.1 Conditional Statements (`if`, `else if`, `else`)</h3>
+            <p>Control flow is managed by conditions that evaluate to a boolean (`true` or `false`). Complex conditions are built using logical operators.</p>
+            <div class="code-box">
+<pre><span class="keyword">auto</span> <span class="variable">score</span> = 85;
+<span class="keyword">if</span> (<span class="variable">score</span> >= 90 &amp;&amp; <span class="variable">score</span> &lt;= 100) { <span class="comment">// AND (&&) check</span>
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"A grade"</span>;
+} <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">score</span> >= 80) {
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"B grade"</span>; <span class="comment">// This line executes</span>
+} <span class="keyword">else</span> {
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Needs improvement"</span>;
+}</pre>
+            </div>
+            <h3>4.2 `if` Statement with Initializer <span class="badge badge-modern">C++17</span></h3>
+            <p>This powerful C++17 feature allows you to declare and initialize a variable whose scope is limited *only* to the `if` and `else` blocks. This prevents the variable from polluting the surrounding code, improving safety and clarity.</p>
+            <div class="code-box">
+<pre><span class="comment">// 'status' is declared and initialized ONLY for this if/else structure.</span>
+<span class="keyword">if</span> (<span class="keyword">auto</span> <span class="variable">status</span> = <span class="function">process_request</span>(); <span class="variable">status</span>.<span class="function">success</span>()) { 
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Request succeeded."</span>;
+} <span class="keyword">else</span> {
+    <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Request failed with error: "</span> &lt;&lt; <span class="variable">status</span>.<span class="function">getError</span>();
+}
+<span class="comment">// ERROR: 'status' does not exist here!</span></pre>
+            </div>
+            <h3>4.3 The `switch` Statement</h3>
+            <p>Used for multiple branching decisions based on a single variable (must be an integer type or enum). It is often more readable and slightly faster than long `if/else if` chains for integer comparison.</p>
+            <div class="code-box">
+<pre><span class="datatype">char</span> <span class="variable">cmd</span> = <span class="string">'S'</span>;
+<span class="keyword">switch</span> (<span class="variable">cmd</span>) {
+    <span class="keyword">case</span> <span class="string">'S'</span>:
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Starting game."</span>;
+        <span class="keyword">break</span>; <span class="comment">// Prevents fall-through!</span>
+    <span class="keyword">case</span> <span class="string">'Q'</span>:
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Quitting game."</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Invalid command."</span>;
+}</pre>
+            </div>
+        </section>
+
+        <section id="module5" class="module-page">
+            <h2 class="section-title">MODULE 5: LOOPS & RANGE-BASED ITERATION</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The fundamental structures of <code>for</code> and <code>while</code> loops.</li>
+                <li>The efficient and safe **range-based `for` loop**.</li>
+                <li>Using `break` and `continue` keywords.</li>
+              </ul>
+            </div>
+            <h3>5.1 The Classic `for` Loop Flow</h3>
+            <p>The `for` loop is ideal for iterations when you know the number of times to loop (or have an explicit counter). It is defined by three parts: **Initialization**, **Condition**, and **Increment/Decrement**.</p>
+            <div class="code-box">
+<pre><span class="keyword">for</span> (<span class="datatype">int</span> i = 0; i &lt; 3; i++) {
+    <span class="variable">std::cout</span> &lt;&lt; i; <span class="comment">// 0 1 2</span>
+}</pre>
+            </div>
+            <h3>5.2 Animated Loop Flow Visualization <span class="badge badge-modern">ANIMATED</span></h3>
+            <p>Follow the control flow of the classic `for` loop. The four steps repeat: **Condition** → **Body** → **Increment** → **Condition**...</p>
+            <div class="simulation-box">
+                <p>Visualizing `for (int i = 0; i < 3; i++)`</p>
+                <div class="code-box" id="m5_code_visual">
+                    <div id="m5_step0" data-type="init">1️⃣ <span class="datatype">int</span> i = 0; <span class="comment">// Initialization (Once)</span></div>
+                    <div id="m5_step1" data-type="condition">2️⃣ i &lt; 3; <span class="comment">// Condition Check</span></div>
+                    <div id="m5_step2" data-type="body">3️⃣ std::cout &lt;&lt; i &lt;&lt; <span class="variable">std::endl</span>; <span class="comment">// Body Execution</span></div>
+                    <div id="m5_step3" data-type="increment">4️⃣ i++; <span class="comment">// Increment/Update</span></div>
+                </div>
+                <button onclick="simulate_m5_loop_animated()">Run Animated Loop (i=0 to 2)</button>
+                <div id="m5_output" class="simulation-output"></div>
+            </div>
+            <h3>5.3 Range-Based `for` Loop (C++11)</h3>
+            <p>The modern, safest, and most readable way to iterate over containers. It automatically manages iterators and boundary checks.</p>
+            <div class="code-box">
+<pre><span class="variable">std::vector</span>&lt;<span class="datatype">int</span>&gt; <span class="variable">scores</span> = {10, 20, 30};
+<span class="comment">// Loop by VALUE (score is a copy - safe, but cannot modify original)</span>
+<span class="keyword">for</span> (<span class="keyword">auto</span> <span class="variable">score</span> : <span class="variable">scores</span>) { 
+    <span class="variable">std::cout</span> &lt;&lt; <span class="variable">score</span> &lt;&lt; <span class="variable">std::endl</span>;
+}
+<span class="comment">// Loop by REFERENCE (score& can modify original - fast/mutable)</span>
+<span class="keyword">for</span> (<span class="keyword">auto</span>&amp; <span class="variable">score</span> : <span class="variable">scores</span>) { 
+    <span class="variable">score</span> += 5; 
+}</pre>
+            </div>
+            <div class="quiz-box">
+                <h4>Concept Check: Iteration Safety</h4>
+                <p>Which keyword should you use to skip the **current** iteration of a loop, but keep the loop running?</p>
+                <label><input type="radio" name="loop_quiz" value="break"> `break`</label>
+                <label><input type="radio" name="loop_quiz" value="continue"> `continue`</label>
+                <label><input type="radio" name="loop_quiz" value="return"> `return`</label>
+                <button onclick="check_m5_quiz()">Check Answer</button>
+                <div id="m5_quiz_result"></div>
+            </div>
+        </section>
+
+        <section id="module6" class="module-page">
+            <h2 class="section-title">MODULE 6: ULTIMATE ADVENTURE 🌟 (FINAL PROJECT)</h2>
+            <div class="module-summary">
+              <strong>In this module, you will:</strong>
+              <ul>
+                <li>Apply concepts from Modules 1–5 in a unified program.</li>
+                <li>Build a simple text-based inventory system.</li>
+                <li>See how different code components interact as a single application.</li>
+              </ul>
+            </div>
+            <p>This module provides a realistic application of the core fundamentals. The `std::vector` concept (covered fully in M7) is used here to represent the player's inventory, demonstrating how data structures are managed using functions, loops, and conditions.</p>
+            <h3>6.1 Project Goal: Basic Inventory System</h3>
+            <div class="code-box">
+<pre><span class="comment">/****************************************
+ * ADVENTURE PROJECT: INVENTORY SYSTEM
+ ****************************************/</span>
+<span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+<span class="keyword">#include</span> &lt;string&gt;
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">cout</span>; 
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">endl</span>; 
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">vector</span>; 
+<span class="keyword">using</span> <span class="variable">std</span>::<span class="variable">string</span>; 
+
+<span class="keyword">void</span> <span class="function">addItem</span>(vector&lt;<span class="variable">string</span>&gt;&amp; <span class="variable">inv</span>, <span class="keyword">const</span> <span class="variable">string</span>&amp; <span class="variable">item</span>) {
+    <span class="variable">inv</span>.<span class="function">push_back</span>(<span class="variable">item</span>);
+    <span class="variable">cout</span> &lt;&lt; <span class="string">">> You found a "</span> &lt;&lt; <span class="variable">item</span> &lt;&lt; <span class="string">"!"</span> &lt;&lt; <span class="variable">endl</span>;
+}
+
+<span class="keyword">void</span> <span class="function">showInventory</span>(<span class="keyword">const</span> <span class="variable">vector</span>&lt;<span class="variable">string</span>&gt;&amp; <span class="variable">inv</span>) { <span class="comment">// Pass-by-const& for efficiency</span>
+    <span class="variable">cout</span> &lt;&lt; <span class="string">" --- INVENTORY --- "</span> &lt;&lt; <span class="variable">endl</span>;
+    <span class="keyword">if</span> (<span class="variable">inv</span>.<span class="function">empty</span>()) { <span class="comment">// Conditional logic</span>
+        <span class="variable">cout</span> &lt;&lt; <span class="string">"Inventory is empty."</span> &lt;&lt; <span class="variable">endl</span>;
+        <span class="keyword">return</span>;
+    }
+    <span class="comment">// Range-based loop (Module 5.3)</span>
+    <span class="keyword">for</span> (<span class="keyword">const</span> <span class="variable">string</span>&amp; <span class="variable">item</span> : <span class="variable">inv</span>) {
+        <span class="variable">cout</span> &lt;&lt; <span class="string">" * "</span> &lt;&lt; <span class="variable">item</span> &lt;&lt; <span class="variable">endl</span>;
+    }
+}
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    <span class="variable">vector</span>&lt;<span class="variable">string</span>&gt; <span class="variable">player_inventory</span>;
+    <span class="function">addItem</span>(<span class="variable">player_inventory</span>, <span class="string">"Old Map"</span>);
+    <span class="function">addItem</span>(<span class="variable">player_inventory</span>, <span class="string">"Iron Key"</span>);
+    
+    <span class="function">showInventory</span>(<span class="variable">player_inventory</span>);
+    <span class="keyword">return</span> 0;
+}</pre>
+            </div>
+            <div class="tip">
+                **Project Checklist:** This example uses explicit `using std::` declarations, pass-by-reference/`const&` for functions, `if/else` logic, and a range-based loop.
+            </div>
+        </section>
+
+        <section id="module7" class="module-page">
+            <h2 class="section-title">MODULE 7: VECTORS (EFFICIENCY & SAFETY)</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The core functionality of <code>std::vector</code>.</li>
+                <li>The efficiency gain from using <code>reserve()</code>.</li>
+                <li>The safety differences between <code>v[i]</code> and <code>v.at(i)</code>.</li>
+              </ul>
+            </div>
+            <h3>7.1 The Dynamic Power of `std::vector`</h3>
+            <p>A **`std::vector`** is the C++ equivalent of a dynamic array. It automatically handles memory resizing as you add elements, a crucial advantage over static arrays.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;vector&gt;
+<span class="variable">std::vector</span>&lt;<span class="datatype">int</span>&gt; <span class="variable">numbers</span>{1, 2}; <span class="comment">// Initializer list initialization</span>
+<span class="variable">numbers</span>.<span class="function">push_back</span>(3); <span class="comment">// Adds 3 to the end, size is now 3</span>
+<span class="variable">std::cout</span> &lt;&lt; <span class="variable">numbers</span>[0]; <span class="comment">// Access element (fast, no bounds check)</span>
+<span class="variable">numbers</span>.<span class="function">pop_back</span>(); <span class="comment">// Removes the last element</span></pre>
+            </div>
+            <h3>7.2 Capacity and `reserve()` for Efficiency</h3>
+            <p>When a vector runs out of space, it allocates a new, larger block of memory and **copies** all existing elements over. This can be slow. Using **`reserve(N)`** pre-allocates the memory, preventing costly reallocations during a batch of `push_back` operations.</p>
+            <div class="warning">
+              <strong>🚨 Safety: `[]` vs. `.at()`</strong>
+              <p>Accessing elements using `v[i]` is faster but performs **no bounds checking**. Accessing using `v.at(i)` is slightly slower but throws a `std::out_of_range` exception if the index is invalid, making it safer for debugging or mission-critical code.</p>
+              <pre class="code-box"><code>std::vector<int> v(2);
+v[5] = 10; // ❌ Undefined behavior! Crash likely.
+v.at(5) = 10; // ✅ Throws std::out_of_range exception. Safe!</code></pre>
+            </div>
+        </section>
+
+        <section id="module8" class="module-page">
+            <h2 class="section-title">MODULE 8: STRUCTS AND SCOPED ENUMS (CUSTOM TYPES)</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>How to use `struct` for grouping data.</li>
+                <li>The modern, safe **scoped enumerations** (`enum class`).</li>
+                <li>**Structured Bindings** (C++17) for easy data extraction.</li>
+              </ul>
+            </div>
+            <h3>8.1 Structs (Simple Data Aggregation)</h3>
+            <p>A **struct** is a way to group related variables together. In C++, a struct is essentially a class where members are `public` by default, making it ideal for simple data bundles without complex encapsulation logic.</p>
+            <div class="code-box">
+<pre><span class="keyword">struct</span> <span class="datatype">Point2D</span> {
+    <span class="datatype">int</span> <span class="variable">x</span>;
+    <span class="datatype">int</span> <span class="variable">y</span>;
+};
+<span class="function">main</span>() {
+    <span class="datatype">Point2D</span> <span class="variable">p1</span>{10, 20}; <span class="comment">// Aggregate initialization</span>
+    <span class="comment">// Structured binding (C++17) allows unpacking the struct:</span>
+    <span class="keyword">auto</span> [<span class="variable">px</span>, <span class="variable">py</span>] = <span class="variable">p1</span>; 
+    <span class="variable">std::cout</span> &lt;&lt; <span class="variable">px</span>; <span class="comment">// Output: 10</span>
+}</pre>
+            </div>
+            <h3>8.2 Scoped Enumerations (`enum class`) <span class="badge badge-modern">C++11</span></h3>
+            <p>The traditional `enum` has global scope and automatically converts to an integer, leading to potential bugs. **`enum class`** solves this by providing **strong typing** and **scope**, preventing accidental name clashes and implicit conversion.</p>
+            <div class="code-box">
+<pre><span class="keyword">enum</span> <span class="keyword">class</span> <span class="datatype">Direction</span> {
+    <span class="variable">North</span>, 
+    <span class="variable">East</span>,
+    <span class="variable">South</span>, 
+    <span class="variable">West</span> 
+};
+<span class="function">main</span>() {
+    <span class="comment">// Strong typing: Must use Direction:: prefix.</span>
+    <span class="datatype">Direction</span> <span class="variable">player_dir</span> = <span class="datatype">Direction</span>::<span class="variable">East</span>; 
+    <span class="comment">// ERROR: if (player_dir == 1) // Cannot compare to integer!</span>
+}</pre>
+            </div>
+        </section>
+
+        <section id="module9" class="module-page">
+            <h2 class="section-title">MODULE 9: SMART POINTERS & RAII 🏆</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The principle of **Resource Acquisition Is Initialization (RAII)**.</li>
+                <li>How to use `std::unique_ptr` for exclusive, safe ownership.</li>
+                <li>Why manual `new` and `delete` are considered a legacy pitfall.</li>
+              </ul>
+            </div>
+            <h3>9.1 RAII and `std::unique_ptr` <span class="badge badge-modern">C++11</span></h3>
+            <p>**RAII** is the fundamental C++ safety principle: **resources** (like memory, files, or network sockets) should be managed by **objects** so that they are automatically cleaned up when the object goes out of scope.</p>
+            <p>**`std::unique_ptr`** is the cornerstone of modern memory management. It is a smart pointer that holds **exclusive ownership** of a dynamically allocated object and automatically calls `delete` when it is destroyed.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;memory&gt;
+<span class="keyword">void</span> <span class="function">run_scope</span>() {
+    <span class="comment">// Allocate memory. UniquePtr guarantees cleanup.</span>
+    <span class="keyword">auto</span> <span class="variable">ptr</span> = <span class="variable">std::make_unique</span>&lt;<span class="datatype">int</span>&gt;(42); 
+
+    <span class="variable">std::cout</span> &lt;&lt; *<span class="variable">ptr</span>; <span class="comment">// Access value: 42</span>
+    
+    <span class="comment">// ptr.get() gives raw pointer (avoid if possible)</span>
+} <span class="comment">// End of scope: unique_ptr automatically calls delete. No memory leak!</span></pre>
+            </div>
+            <h3>9.2 The Legacy of Raw Pointers</h3>
+            <p>Raw pointers (`int*`) require manual management using `new` and `delete`. This is highly error-prone (forgetting `delete`, double-delete, exception safety) and should be avoided in favor of smart pointers.</p>
+            <div class="warning">
+              <strong>🚨 The Danger of Raw `new`/`delete`</strong>
+              <pre class="code-box"><code>int* raw_ptr = new int(5); 
+// If an exception happens here, the 'delete' below is skipped. 
+// ❌ Memory Leak!
+delete raw_ptr; // Must be manually called for cleanup.</code></pre>
+            </div>
+            <div class="tip">
+              **Shared Ownership:** For scenarios where multiple entities need to share ownership of the same resource, use **`std::shared_ptr`**. It uses reference counting to track owners and only deletes the resource when the last owner is gone.
+            </div>
+        </section>
+
+        <section id="module10" class="module-page">
+            <h2 class="section-title">MODULE 10: CLASSES, CONSTRUCTORS, & RULE OF 5 <span class="badge badge-oop">OOP</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>How to define classes and enforce **encapsulation**.</li>
+                <li>Use of constructors, destructors, and in-class initialization.</li>
+                <li>The **Rule of Zero/Five** for resource management.</li>
+              </ul>
+            </div>
+            <h3>10.1 Class Definition and Encapsulation</h3>
+            <p>A **class** is a blueprint for objects, bundling data (member variables) and behavior (member functions). **Encapsulation** is enforced by using the `private` keyword to hide data and `public` to expose a safe interface.</p>
+            <div class="code-box">
+<pre><span class="keyword">class</span> <span class="datatype">Player</span> {
+<span class="keyword">private</span>:
+    <span class="datatype">int</span> <span class="variable">health</span>{100}; <span class="comment">// 1. Private Data: In-class member initialization (C++11)</span>
+<span class="keyword">public</span>:
+    <span class="comment">// 2. Constructor: Initializes object state (using initialization list)</span>
+    <span class="function">Player</span>(<span class="datatype">int</span> <span class="variable">h</span>) : <span class="variable">health</span>(<span class="variable">h</span>) {} 
+    
+    <span class="comment">// 3. Public Interface (safe way to interact)</span>
+    <span class="keyword">void</span> <span class="function">takeDamage</span>(<span class="datatype">int</span> <span class="variable">amount</span>) {
+        <span class="variable">health</span> -= <span class="variable">amount</span>;
+    }
+    <span class="datatype">int</span> <span class="function">getHealth</span>() <span class="keyword">const</span> { <span class="keyword">return</span> <span class="variable">health</span>; }
+};</pre>
+            </div>
+            <h3>10.2 The Rule of Zero, Three, and Five</h3>
+            <p>This is a foundational concept for classes that manage resources (like a raw pointer/file handle). If you define any of these three (Copy Constructor, Copy Assignment, Destructor), you likely need to define all of them (The Rule of Three).</p>
+            <p>The modern approach (C++11+) adds the Move Constructor and Move Assignment Operator (The **Rule of Five**). However, the ultimate goal is the **Rule of Zero**: If you use smart pointers and other RAII objects, you don't need to define any of them manually. The compiler-generated defaults will work safely.</p>
+            <div class="tip">
+                **Modern C++ Goal: Rule of Zero.** By using `std::unique_ptr` in your class, you let the compiler handle all resource cleanup and copying/moving correctly, eliminating almost all memory management bugs.
+            </div>
+        </section>
+
+        <section id="module11" class="module-page">
+            <h2 class="section-title">MODULE 11: CONST CORRECTNESS & REFERENCES</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>Using `const` to define a contract of immutability.</li>
+                <li>The crucial difference in `const` placement on pointers.</li>
+                <li>Reference variables (aliases) and their use in functions.</li>
+              </ul>
+            </div>
+            <h3>11.1 The `const` Keyword: The Promise</h3>
+            <p>The position of `const` matters greatly, especially with pointers.</p>
+            <div class="code-box">
+<pre><span class="datatype">int</span> <span class="variable">val</span> = 5;
+<span class="keyword">const</span> <span class="datatype">int</span>* <span class="variable">p_to_const</span> = &amp;<span class="variable">val</span>; <span class="comment">// 1. Pointer to CONSTANT: Value (*p) cannot change.</span>
+<span class="datatype">int</span>* <span class="keyword">const</span> <span class="variable">const_ptr</span> = &amp;<span class="variable">val</span>; <span class="comment">// 2. CONSTANT Pointer: Pointer (p) cannot change what it points to.</span>
+<span class="keyword">const</span> <span class="datatype">int</span>* <span class="keyword">const</span> <span class="variable">all_const</span> = &amp;<span class="variable">val</span>; <span class="comment">// 3. Both are constant.</span></pre>
+            </div>
+            <div class="tip">
+              **The Right-Left Rule:** Read declarations from right to left to understand `const` usage. For `int* const p`, you read: `p` is a `const` pointer to an `int`.
+            </div>
+            <h3>11.2 Const Member Functions</h3>
+            <p>Placing `const` after a function signature guarantees that the function will not modify the state (member variables) of the object it is called on. This is essential for methods like `getHealth()`.</p>
+            <div class="code-box">
+<pre><span class="comment">// This function is safe to call on const objects.</span>
+<span class="datatype">int</span> <span class="function">get_size</span>() <span class="keyword">const</span> { 
+    <span class="comment">// return size; </span>
+    <span class="comment">// ERROR: size = 0; // cannot modify 'size' in a const function.</span>
+}</pre>
+            </div>
+        </section>
+
+        <section id="module12" class="module-page">
+            <h2 class="section-title">MODULE 12: OPERATOR OVERLOADING <span class="badge badge-oop">OOP</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The purpose of operator overloading (making custom types feel like built-in types).</li>
+                <li>How to overload binary operators (e.g., `+`, `*`).</li>
+                <li>Using **non-member functions** for symmetrical overloads.</li>
+              </ul>
+            </div>
+            <h3>12.1 Overloading Binary Operators</h3>
+            <p>**Operator Overloading** allows user-defined classes to use standard C++ operators (`+`, `*`, `==`, etc.). This dramatically improves code clarity by allowing mathematical or logical operations to be written naturally.</p>
+            <div class="code-box">
+<pre><span class="keyword">struct</span> <span class="datatype">Vector2D</span> {
+    <span class="datatype">double</span> <span class="variable">x</span>, <span class="variable">y</span>;
+};
+
+<span class="comment">// Non-member function overload (preferred for symmetry)</span>
+<span class="datatype">Vector2D</span> <span class="function">operator+</span>(<span class="keyword">const</span> <span class="datatype">Vector2D</span>&amp; <span class="variable">v1</span>, <span class="keyword">const</span> <span class="datatype">Vector2D</span>&amp; <span class="variable">v2</span>) {
+    <span class="comment">// Uses pass-by-const& and returns a new Vector2D (by value)</span>
+    <span class="keyword">return</span> {<span class="variable">v1</span>.<span class="variable">x</span> + <span class="variable">v2</span>.<span class="variable">x</span>, <span class="variable">v1</span>.<span class="variable">y</span> + <span class="variable">v2</span>.<span class="variable">y</span>};
+}
+
+<span class="function">main</span>() {
+    <span class="datatype">Vector2D</span> <span class="variable">a</span> = {1.0, 2.0};
+    <span class="datatype">Vector2D</span> <span class="variable">b</span> = {3.0, 4.0};
+    <span class="datatype">Vector2D</span> <span class="variable">c</span> = <span class="variable">a</span> + <span class="variable">b</span>; <span class="comment">// Calls operator+</span>
+}</pre>
+            </div>
+            <div class="warning">
+              **🚨 Assignment and Compound Operators:**
+              <p>Operators like `=` (assignment) and `()` (function call) must be implemented as **member functions**. Compound assignment operators like `+=` should generally be implemented first, and then the binary operator (`+`) can be implemented in terms of `+=`.</p>
+            </div>
+        </section>
+
+        <section id="module13" class="module-page">
+            <h2 class="section-title">MODULE 13: FILE I/O (ROBUST STREAMS)</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The stream hierarchy: `ifstream` (input) and `ofstream` (output).</li>
+                <li>Robust file reading techniques to handle end-of-file (EOF) and errors.</li>
+                <li>Using `std::filesystem` for modern path manipulation (C++17).</li>
+              </ul>
+            </div>
+            <h3>13.1 Writing Data to a File (`std::ofstream`)</h3>
+            <p>Use `std::ofstream` to write data. Since streams follow the RAII principle, they are automatically closed when the stream object goes out of scope (though an explicit `close()` is acceptable).</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;fstream&gt;
+<span class="variable">std::ofstream</span> <span class="variable">outfile</span>(<span class="string">"data.txt"</span>);
+
+<span class="keyword">if</span> (<span class="variable">outfile</span>) { <span class="comment">// Check if the file opened successfully (Robust check)</span>
+    <span class="variable">outfile</span> &lt;&lt; <span class="string">"User Score: "</span> &lt;&lt; 95 &lt;&lt; <span class="variable">std::endl</span>;
+    <span class="variable">outfile</span> &lt;&lt; <span class="string">"Saved at 12:00"</span>;
+} <span class="comment">// outfile automatically closes here (RAII)</span></pre>
+            </div>
+            <h3>13.2 Robust Reading Loop (`std::ifstream`)</h3>
+            <p>The standard C++ way to read a file line-by-line is to use the stream object as the condition in a `while` loop. This handles both successful reading and detecting the end-of-file or any error states.</p>
+            <div class="code-box">
+<pre><span class="variable">std::ifstream</span> <span class="variable">infile</span>(<span class="string">"data.txt"</span>);
+<span class="variable">std::string</span> <span class="variable">line</span>;
+
+<span class="comment">// Reads line, checks status, then loops (Best Practice)</span>
+<span class="keyword">while</span> (<span class="variable">std::getline</span>(<span class="variable">infile</span>, <span class="variable">line</span>)) { 
+    <span class="variable">std::cout</span> &lt;&lt; <span class="variable">line</span> &lt;&lt; <span class="variable">std::endl</span>;
+}</pre>
+            </div>
+        </section>
+
+        <section id="module14" class="module-page">
+            <h2 class="section-title">MODULE 14: INHERITANCE, VIRTUAL DESTRUCTORS <span class="badge badge-oop">OOP</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>How **Inheritance** models the "is-a" relationship.</li>
+                <li>The role of the **`virtual`** keyword in polymorphism.</li>
+                <li>The critical necessity of a **virtual destructor**.</li>
+                <li>Using `override` and `final` (C++11).</li>
+              </ul>
+            </div>
+            <h3>14.1 Inheritance and Polymorphism</h3>
+            <p>**Polymorphism** (Greek for "many forms") is the ability to treat a derived class object as if it were a base class object.</p>
+            <div class="code-box">
+<pre><span class="keyword">class</span> <span class="datatype">Enemy</span> { <span class="comment">// Base Class</span>
+<span class="keyword">public</span>:
+    <span class="keyword">virtual</span> ~<span class="function">Enemy</span>() = <span class="keyword">default</span>; <span class="comment">// VIRTUAL DESTRUCTOR is CRITICAL!</span>
+    <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="function">attack</span>() { 
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Enemy attacks normally."</span> &lt;&lt; <span class="variable">std::endl</span>;
+    } 
+};
+
+<span class="keyword">class</span> <span class="datatype">Goblin</span> : <span class="keyword">public</span> <span class="datatype">Enemy</span> { <span class="comment">// Goblin IS A Enemy</span>
+<span class="keyword">public</span>:
+    <span class="keyword">void</span> <span class="function">attack</span>() <span class="keyword">override</span> <span class="comment">// Checks signature matches base class (C++11)</span>
+    { 
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Goblin sneaks and attacks!"</span> &lt;&lt; <span class="variable">std::endl</span>;
+    }
+};</pre>
+            </div>
+            <div class="warning">
+              **🚨 Critical: Virtual Destructors**
+              <p>When you delete a derived class object through a base class pointer (`delete base_ptr;`), if the base class destructor is NOT `virtual`, only the base destructor is called, leading to a **memory leak** (The Derived class's cleanup is skipped!). Always make base class destructors virtual.</p>
+            </div>
+        </section>
+
+        <section id="module15" class="module-page">
+            <h2 class="section-title">MODULE 15: TEMPLATES & CONCEPTS <span class="badge badge-modern">C++20</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>How templates create **generic** code (functions and classes).</li>
+                <li>The compiler process: **Monomorphization**.</li>
+                <li>How **Concepts** (C++20) constrain templates for better error messages.</li>
+              </ul>
+            </div>
+            <h3>15.1 Function Templates (Generics)</h3>
+            <p>Templates allow you to write a function or class once, and have the compiler generate code for specific data types as needed. This is how the STL (`std::vector`, `std::sort`) is built.</p>
+            <div class="code-box">
+<pre><span class="comment">// T is a type placeholder</span>
+<span class="keyword">template</span> &lt;<span class="keyword">typename</span> <span class="datatype">T</span>&gt; 
+<span class="datatype">T</span> <span class="function">maxVal</span>(<span class="keyword">const</span> <span class="datatype">T</span>&amp; <span class="variable">a</span>, <span class="keyword">const</span> <span class="datatype">T</span>&amp; <span class="variable">b</span>) {
+    <span class="comment">// Note the use of const& for efficiency!</span>
+    <span class="keyword">return</span> (<span class="variable">a</span> > <span class="variable">b</span>) ? <span class="variable">a</span> : <span class="variable">b</span>;
+}
+
+<span class="function">main</span>() {
+    <span class="variable">std::string</span> <span class="variable">s</span> = <span class="function">maxVal</span>(<span class="string">"apple"</span>, <span class="string">"zebra"</span>); <span class="comment">// Compiler creates maxVal&lt;std::string&gt;</span>
+}</pre>
+            </div>
+            <h3>15.2 Constraining Templates with Concepts <span class="badge badge-modern">C++20</span></h3>
+            <p>Concepts allow you to specify requirements for template types, resulting in clear, concise error messages.</p>
+            <div class="code-box">
+<pre><span class="comment">// Requires the type T to support the greater-than operator (>)</span>
+<span class="keyword">template</span> &lt;<span class="keyword">typename</span> <span class="datatype">T</span>&gt;
+<span class="keyword">requires</span> <span class="variable">std</span>::<span class="variable">totally_ordered</span>&lt;<span class="datatype">T</span>&gt; 
+<span class="datatype">T</span> <span class="function">maxVal_concept</span>(<span class="keyword">const</span> <span class="datatype">T</span>&amp; <span class="variable">a</span>, <span class="keyword">const</span> <span class="datatype">T</span>&amp; <span class="variable">b</span>) {
+    <span class="comment">// ... implementation ...</span>
+}</pre>
+            </div>
+        </section>
+
+        <section id="module16" class="module-page">
+            <h2 class="section-title">MODULE 16: EXCEPTION HANDLING</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The philosophy of `try`, `catch`, and `throw`.</li>
+                <li>Using `std::exception` derived classes (e.g., `std::runtime_error`).</li>
+                <li>Why exceptions are generally preferred over magic error codes for runtime failures.</li>
+              </ul>
+            </div>
+            <h3>16.1 The `try...catch` Block</h3>
+            <p>Exception handling provides a structured, non-local way to manage runtime errors. When an error is encountered in the `try` block, execution stops and "jumps" to the first matching `catch` handler.</p>
+            <div class="code-box">
+<pre><span class="keyword">double</span> <span class="function">safeDivide</span>(<span class="datatype">double</span> <span class="variable">num</span>, <span class="datatype">double</span> <span class="variable">den</span>) {
+    <span class="keyword">if</span> (<span class="variable">den</span> == 0) {
+        <span class="comment">// Throwing an exception creates an object and initiates stack unwinding.</span>
+        <span class="keyword">throw</span> <span class="variable">std::runtime_error</span>(<span class="string">"Cannot divide by zero."</span>);
+    }
+    <span class="keyword">return</span> <span class="variable">num</span> / <span class="variable">den</span>;
+}
+
+<span class="function">main</span>() {
+    <span class="keyword">try</span> {
+        <span class="variable">std::cout</span> &lt;&lt; <span class="function">safeDivide</span>(10.0, 0.0);
+    } <span class="keyword">catch</span> (<span class="keyword">const</span> <span class="variable">std::runtime_error</span>&amp; <span class="variable">e</span>) {
+        <span class="comment">// Catches the error by const reference (best practice)</span>
+        <span class="variable">std::cerr</span> &lt;&lt; <span class="string">"Caught Error: "</span> &lt;&lt; <span class="variable">e</span>.<span class="function">what</span>() &lt;&lt; <span class="variable">std::endl</span>;
+    }
+}</pre>
+            </div>
+            <div class="tip">
+              **Catch by Const Reference:** Always catch exceptions by `const` reference (`const Type&`) to avoid object slicing and unnecessary copying.
+            </div>
+        </section>
+
+        <section id="module17" class="module-page">
+            <h2 class="section-title">MODULE 17: LAMBDAS & STL ALGORITHMS</h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The syntax and purpose of **lambda functions** (C++11).</li>
+                <li>Different **capture modes** (`[]`, `[=]`, `[&]`).</li>
+                <li>How to use `std::for_each` and `std::count_if` with lambdas.</li>
+              </ul>
+            </div>
+            <h3>17.1 Lambda Functions (Anonymous Functions) <span class="badge badge-modern">C++11</span></h3>
+            <p>A **lambda** is a small, inline, unnamed function object. They are often passed as arguments to STL algorithms to customize behavior.</p>
+            <div class="code-box">
+<pre><span class="variable">std::vector</span>&lt;<span class="datatype">int</span>&gt; <span class="variable">v</span> = {5, 2, 8, 1};
+
+<span class="comment">// Syntax: [capture_list](parameters) -> return_type { body }</span>
+<span class="comment">// [] means capture nothing.</span>
+<span class="variable">std::sort</span>(<span class="variable">v</span>.<span class="function">begin</span>(), <span class="variable">v</span>.<span class="function">end</span>(), [](<span class="datatype">int</span> <span class="variable">a</span>, <span class="datatype">int</span> <span class="variable">b</span>) {
+    <span class="keyword">return</span> <span class="variable">a</span> > <span class="variable">b</span>; <span class="comment">// Sorts in descending order</span>
+});</pre>
+            </div>
+            <h3>17.2 The Capture List</h3>
+            <p>The **capture list** (`[]`) specifies which surrounding local variables the lambda can access (and how: by value or by reference).</p>
+            <ul>
+                <li>`[=]`: Capture all local variables used inside the lambda **by value** (read-only copy).</li>
+                <li>`[&]`: Capture all local variables used inside the lambda **by reference** (mutable).</li>
+                <li>`[val, &ref]`: Capture specific variables (`val` by value, `ref` by reference).</li>
+            </ul>
+            <div class="code-box">
+<pre><span class="datatype">int</span> <span class="variable">threshold</span> = 5;
+<span class="comment">// Captures threshold by VALUE</span>
+<span class="keyword">auto</span> <span class="variable">is_large</span> = [<span class="variable">threshold</span>](<span class="datatype">int</span> <span class="variable">x</span>) { 
+    <span class="keyword">return</span> <span class="variable">x</span> > <span class="variable">threshold</span>; <span class="comment">// uses the captured value 5</span>
+};
+
+<span class="comment">// Use with an algorithm to find elements greater than 5</span>
+<span class="keyword">auto</span> <span class="variable">count</span> = <span class="variable">std::count_if</span>(<span class="variable">v</span>.<span class="function">begin</span>(), <span class="variable">v</span>.<span class="function">end</span>(), <span class="variable">is_large</span>);</pre>
+            </div>
+        </section>
+
+        <section id="module18" class="module-page">
+            <h2 class="section-title">MODULE 18: MOVE SEMANTICS & R-VALUES <span class="badge badge-modern">C++11</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The difference between **L-values** (identity) and **R-values** (temporary).</li>
+                <li>The concept of "moving" (cheap transfer) vs. "copying" (expensive duplication).</li>
+                <li>The **Move Constructor** and **Move Assignment Operator**.</li>
+              </ul>
+            </div>
+            <h3>18.1 L-values vs. R-values</h3>
+            <p>The distinction between an **L-value** (a named variable) and an **R-value** (a temporary value) is the foundation of Move Semantics.</p>
+            <div class="code-box">
+<pre><span class="variable">std::string</span> <span class="variable">a</span> = <span class="string">"World"</span>; <span class="comment">// 'a' is an L-value</span>
+<span class="variable">std::string</span> <span class="function">make_str</span>() { <span class="keyword">return</span> <span class="string">"Hello"</span>; }
+
+<span class="variable">std::string</span> <span class="variable">b</span> = <span class="function">make_str</span>(); <span class="comment">// The return value is an R-value.</span></pre>
+            </div>
+            <h3>18.2 The Move Constructor and `std::move`</h3>
+            <p>A **move** involves merely transferring the ownership of an internal resource (like a pointer to a large buffer) from the temporary source to the destination. This is a cheap transfer (O(1) complexity) instead of an expensive copy (O(N)).</p>
+            <div class="code-box">
+<pre><span class="comment">// Move Constructor (Transfers ownership of the pointer)</span>
+<span class="datatype">BigData</span>(<span class="datatype">BigData</span>&amp;&amp; <span class="variable">other</span>) <span class="keyword">noexcept</span> {
+    <span class="variable">buffer_ptr</span> = <span class="variable">other</span>.<span class="variable">buffer_ptr</span>; <span class="comment">// 1. Steal the resource</span>
+    <span class="variable">other</span>.<span class="variable">buffer_ptr</span> = <span class="keyword">nullptr</span>; <span class="comment">// 2. Nullify the source (leaves it safe to destroy)</span>
+}</pre>
+            </div>
+        </section>
+
+        <section id="module19" class="module-page">
+            <h2 class="section-title">MODULE 19: CONCURRENCY, THREADS & FUTURES <span class="badge badge-modern">C++11</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The concept of **concurrency** and multi-threading.</li>
+                <li>Creating and managing threads with `std::thread` and `join()`.</li>
+                <li>The high-level approach using `std::async` and `std::future`.</li>
+                <li>The necessity of `std::mutex` for shared data protection.</li>
+              </ul>
+            </div>
+            <h3>19.1 Thread Management with `std::thread`</h3>
+            <p>The `<thread>` library provides the necessary primitives to start and manage independent execution paths.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;thread&gt;
+<span class="keyword">void</span> <span class="function">workerFunc</span>() {
+    <span class="comment">// This task runs concurrently with main()</span>
+}
+
+<span class="function">main</span>() {
+    <span class="variable">std::thread</span> <span class="variable">t1</span>(<span class="function">workerFunc</span>); <span class="comment">// Start a new thread</span>
+    
+    <span class="comment">// ... main thread continues execution ...</span>
+    
+    <span class="variable">t1</span>.<span class="function">join</span>(); <span class="comment">// CRITICAL: Wait for t1 to finish before main() exits</span>
+}</pre>
+            </div>
+            <h3>19.2 High-Level Concurrency (`std::async` and `std::future`)</h3>
+            <p>**`std::async`** launches a function (potentially in a new thread) and returns a **`std::future`** object, which holds the promise of the eventual result.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;future&gt;
+<span class="datatype">int</span> <span class="function">heavy_calc</span>(<span class="datatype">int</span> <span class="variable">a</span>) { <span class="keyword">return</span> <span class="variable">a</span> * 2; }
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    <span class="variable">std::future</span>&lt;<span class="datatype">int</span>&gt; <span class="variable">fut</span> = <span class="variable">std::async</span>(<span class="function">heavy_calc</span>, 5); 
+    
+    <span class="comment">// Do other work while heavy_calc runs in the background...</span>
+    
+    <span class="datatype">int</span> <span class="variable">result</span> = <span class="variable">fut</span>.<span class="function">get</span>(); <span class="comment">// Wait and retrieve result (10)</span>
+}</pre>
+            </div>
+            <div class="warning">
+              **🚨 Data Race:** When multiple threads access and modify the same data, a **Data Race** occurs. You must use synchronization primitives like **`std::mutex`** (a lock) to ensure only one thread accesses the shared resource at a time.
+            </div>
+        </section>
+
+        <section id="module20" class="module-page">
+            <h2 class="section-title">MODULE 20: MODERN UTILITY (OPTIONAL, TUPLE) <span class="badge badge-modern">C++17/20</span></h2>
+            <div class="module-summary">
+              <strong>In this module, you will learn:</strong>
+              <ul>
+                <li>The use of `std::optional` to safely return "no value."</li>
+                <li>How `std::tuple` allows a function to return multiple different types.</li>
+                <li>**Structured Bindings** for convenient unpacking of tuples/structs.</li>
+              </ul>
+            </div>
+            <h3>20.1 `std::optional` (Handling "No Value") <span class="badge badge-modern">C++17</span></h3>
+            <p>**`std::optional<T>`** explicitly wraps a value, indicating whether the value is present or not, avoiding the ambiguity and safety issues of legacy methods.</p>
+            <div class="code-box">
+<pre><span class="keyword">#include</span> &lt;optional&gt;
+<span class="variable">std::optional</span>&lt;<span class="datatype">int</span>&gt; <span class="function">findElement</span>(<span class="datatype">int</span> <span class="variable">target</span>) {
+    <span class="keyword">if</span> (<span class="variable">target</span> == 42) { <span class="keyword">return</span> 42; }
+    <span class="keyword">return</span> <span class="variable">std::nullopt</span>; <span class="comment">// Explicitly returns a container with no value</span>
+}
+<span class="function">main</span>() {
+    <span class="keyword">auto</span> <span class="variable">val</span> = <span class="function">findElement</span>(10);
+    <span class="keyword">if</span> (<span class="variable">val</span>) { <span class="comment">// Simple boolean check if value is present</span>
+        <span class="variable">std::cout</span> &lt;&lt; <span class="string">"Found: "</span> &lt;&lt; <span class="variable">val</span>.<span class="function">value</span>();
+    }
+}</pre>
+            </div>
+            <h3>20.2 `std::tuple` and Structured Bindings <span class="badge badge-modern">C++17</span></h3>
+            <p>**`std::tuple`** allows you to bundle several heterogeneous values together. **Structured Bindings** then provide an elegant way to unpack them.</p>
+            <div class="code-box">
+<pre><span class="keyword">auto</span> <span class="function">getPlayerStats</span>() {
+    <span class="keyword">return</span> <span class="variable">std::make_tuple</span>(99, <span class="string">"Sword"</span>, 150.5); <span class="comment">// int, string, double</span>
+}
+<span class="function">main</span>() {
+    <span class="comment">// Structured binding unpacks the tuple into named variables:</span>
+    <span class="keyword">auto</span> [<span class="variable">level</span>, <span class="variable">item_name</span>, <span class="variable">health</span>] = <span class="function">getPlayerStats</span>();
+    <span class="variable">std::cout</span> &lt;&lt; <span class="variable">item_name</span>; <span class="comment">// Output: Sword</span>
+}</pre>
+            </div>
+            <div class="simulation-box">
+                <h4>Interactive Optional Check</h4>
+                <p>Try finding ID **42** vs any other number to see the `std::optional` logic.</p>
+                <p>Enter Target ID: <input type="number" id="m20_input" value="10"></p>
+                <button onclick="simulate_m20_optional()">Simulate Find Element</button>
+                <div id="m20_output" class="simulation-output"></div>
+            </div>
+        </section>
+    </main>
+  </div>
+  <script>
+    /* * --- SEARCH LOGIC (RETAINED) --- */
+    const SEARCHABLE_CONTENT = [
+        { type: 'Module', id: 'module1', title: '1. Program Structure & Setup', content: 'standardized structure of a C++ program. #include <header> #include "header.h". Best practices for main() return value. main function entry point preprocessor directives #include <iostream> std::endl Return 0: Signifies successful execution. C++ Standard Library vs. Local Headers. Avoiding using namespace std; pollutes the global namespace std::cout.' },
+        { type: 'Module', id: 'module2', title: '2. Variables, Types & Modern `auto`', content: 'C++ primitive data types type safety. auto for cleaner code (C++11). std::cin. strongly typed int double char bool std::string uniform initialization narrowing conversions const immutable auto Keyword Type Deduction deduces the type iterators lambda functions Best Practice: Use auto std::cin reads data from the keyboard Interactive Variable Calculator.' },
+        { type: 'Module', id: 'module3', title: '3. Functions & Pass-by-`const&`', content: 'Function prototypes and the linker. pass-by-value and pass-by-reference. const& (constant reference) preferred way to pass large objects. [[nodiscard]] (C++17). Function Prototype declaration definition implementation header files source files Pass-by-Value vs. Pass-by-const& copy is made memory address & const prevents modification Best Practice: [[nodiscard]].' },
+        { type: 'Module', id: 'module4', title: '4. If/Else & Initializer (C++17)', content: 'if else if else control flow. Logical operators (&&, ||, !). if with initializer statement (C++17). Conditional Statements boolean AND OR NOT if with initializer scope is limited status.success() switch Statement integer type or enum break default.' },
+        { type: 'Module', id: 'module5', title: '5. Loops & Range-Based Iteration', content: 'for and while loops. range-based for loop. break and continue. Classic for Loop Initialization Condition Increment Decrement Animated Loop Flow Visualization Range-Based for Loop C++11 safest readable loop by VALUE loop by REFERENCE modify original break continue Keywords Concept Check Quiz.' },
+        { type: 'Module', id: 'module6', title: '6. Ultimate Adventure 🌟', content: 'Apply concepts from Modules 1–5. Build a simple text-based inventory system. data structures functions loops conditionals addItem showInventory hasItem Project Checklist.' },
+        { type: 'Module', id: 'module7', title: '7. Vectors (Efficiency & Safety)', content: 'std::vector dynamic arrays. efficiency reserve(). safety v[i] and v.at(i). Dynamic Power of std::vector push_back pop_back reserve(N) pre-allocates memory reallocations Common Pitfall Accessing Out-of-Bounds Elements no bounds checking throws std::out_of_range exception.' },
+        { type: 'Module', id: 'module8', title: '8. Structs and Scoped Enums (Custom Types)', content: 'struct grouping data. scoped enumerations (enum class). Structured Bindings (C++17). Structs Simple Data Aggregation public Point2D Aggregate initialization Structured binding unpacks enum class strong typing and scope Direction.' },
+        { type: 'Module', id: 'module9', title: '9. Smart Pointers & RAII 🏆', content: 'Resource Acquisition Is Initialization (RAII). std::unique_ptr exclusive safe ownership. new and delete legacy pitfall. std::make_unique automatically calls delete memory leak Raw Pointers std::shared_ptr shared ownership.' },
+        { type: 'Module', id: 'module10', title: '10. Classes, Constructors, & Rule of 5', content: 'define classes encapsulation. constructors destructors in-class initialization. Rule of Zero/Five resource management. Class Definition blueprint private public Constructor Destructor initialization list takeDamage getHealth Rule of Zero Three Five Rule of Zero.' },
+        { type: 'Module', id: 'module11', title: '11. Const Correctness & References', content: 'const contract of immutability. const placement on pointers. Reference variables aliases. Const Correctness compiler to perform optimizations Pointer to CONSTANT CONSTANT Pointer Right-Left Rule Const Member Functions.' },
+        { type: 'Module', id: 'module12', title: '12. Operator Overloading', content: 'purpose of operator overloading. overload binary operators (+, *). non-member functions symmetry. Operator Overloading Vector2D operator+ Non-member function overload Compound Assignment Operators.' },
+        { type: 'Module', id: 'module13', title: '13. File I/O (Robust Streams)', content: 'ifstream input ofstream output. Robust file reading techniques EOF errors. std::filesystem C++17. Writing Data to a File std::ofstream RAII close() Reading Data Robust Reading Loop std::ifstream getline.' },
+        { type: 'Module', id: 'module14', title: '14. Inheritance, Virtual Destructors', content: 'Inheritance "is-a" relationship. virtual polymorphism. virtual destructor. override final C++11. Derived Class Base Class Polymorphism Goblin Enemy virtual ~Enemy() Critical Virtual Destructors memory leak.' },
+        { type: 'Module', id: 'module15', title: '15. Templates & Concepts (C++20)', content: 'Templates generic code. Monomorphization. Concepts (C++20) constrain templates. Function Templates T type placeholder maxVal Constraining Templates with Concepts std::totally_ordered.' },
+        { type: 'Module', id: 'module16', title: '16. Exception Handling', content: 'try catch throw. std::exception std::runtime_error. exceptions preferred over magic error codes. try...catch Block structured non-local way safeDivide std::cerr Catch by Const Reference.' },
+        { type: 'Module', id: 'module17', title: '17. Lambdas & STL Algorithms', content: 'lambda functions C++11. capture modes ([], [=], [&]). std::for_each std::count_if. Lambda Functions anonymous function object Standard Template Library std::sort Capture List by value by reference std::count_if.' },
+        { type: 'Module', id: 'module18', title: '18. Move Semantics & R-values', content: 'L-values identity R-values temporary. moving cheap transfer copying expensive duplication. Move Constructor Move Assignment Operator. L-values R-values string make_str Move Constructor Steal the resource Nullify the source cheap transfer.' },
+        { type: 'Module', id: 'module19', title: '19. Concurrency, Threads & Futures', content: 'concurrency multi-threading. std::thread join(). std::async std::future. std::mutex. Thread Management std::thread workerFunc join() High-Level Concurrency std::async std::future heavy_calc Data Race std::mutex.' },
+        { type: 'Module', id: 'module20', title: '20. Modern Utility (Optional, Tuple)', content: 'std::optional no value. std::tuple multiple different types. Structured Bindings. std::optional<T> std::nullopt has_value() Structured Bindings std::tuple std::make_tuple.' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('toc-search');
+        const searchResultsDiv = document.getElementById('search-results');
+
+        // Event listener for autofill logic
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            if (query.length < 2) {
+                searchResultsDiv.style.display = 'none';
+                searchResultsDiv.innerHTML = '';
+                return;
+            }
+            
+            const results = performSearch(query);
+            renderResults(results, query);
+        });
+        
+        // Hide results when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!document.getElementById('search-container').contains(event.target)) {
+                searchResultsDiv.style.display = 'none';
+            }
+        });
+    });
+
+    function performSearch(query) {
+        const MAX_RESULTS = 7;
+        const moduleResults = [];
+        const contentResults = [];
+        
+        for (const item of SEARCHABLE_CONTENT) {
+            let matchScore = 0;
+            
+            if (item.title.toLowerCase().includes(query)) {
+                matchScore += 100;
+            }
+            
+            if (item.content.toLowerCase().includes(query)) {
+                matchScore += 50;
+            }
+
+            if (matchScore > 0) {
+                 const resultItem = {
+                    ...item,
+                    score: matchScore,
+                    source: matchScore > 50 ? 'Module Title' : 'Page Content'
+                };
+                if (resultItem.source === 'Module Title') {
+                    moduleResults.push(resultItem);
+                } else {
+                    contentResults.push(resultItem);
+                }
+            }
+        }
+        
+        moduleResults.sort((a, b) => b.score - a.score); 
+        contentResults.sort((a, b) => b.score - a.score); 
+        
+        return [...moduleResults, ...contentResults].slice(0, MAX_RESULTS);
+    }
+
+    function renderResults(results, query) {
+        const searchResultsDiv = document.getElementById('search-results');
+        searchResultsDiv.innerHTML = '';
+        
+        if (results.length === 0) {
+            searchResultsDiv.innerHTML = '<div class="search-result-item" style="cursor: default; color: var(--color-text-secondary);">No results found for "' + query + '"</div>';
+            searchResultsDiv.style.display = 'block';
+            return;
+        }
+
+        results.forEach(item => {
+            const resultElement = document.createElement('a');
+            resultElement.href = '#';
+            resultElement.className = 'search-result-item';
+            
+            const titleHTML = item.title.replace(new RegExp(query, 'gi'), match => `<strong>${match}</strong>`);
+
+            resultElement.innerHTML = `${titleHTML}<span class="module-id">Source: ${item.source}</span>`;
+            
+            resultElement.onclick = (e) => {
+                e.preventDefault();
+                showModule(item.id);
+                searchResultsDiv.style.display = 'none';
+                document.getElementById('toc-search').value = item.title.split('. ')[1] || item.title;
+                document.getElementById('nav-' + item.id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+            
+            searchResultsDiv.appendChild(resultElement);
+        });
+        
+        searchResultsDiv.style.display = 'block';
+    }
+
+    /* * --- THEME TOGGLE LOGIC (RETAINED) --- */ 
+    function toggleTheme() {
+        const body = document.body;
+        const toggleButton = document.getElementById('theme-toggle');
+        body.classList.toggle('dark-mode');
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+            toggleButton.textContent = '🌙'; 
+            toggleButton.title = 'Switch to Light Mode';
+        } else {
+            localStorage.setItem('theme', 'light');
+            toggleButton.textContent = '☀️'; 
+            toggleButton.title = 'Switch to Dark Mode';
+        }
+    }
+
+    function loadThemePreference() {
+        const body = document.body;
+        const toggleButton = document.getElementById('theme-toggle');
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            toggleButton.textContent = '🌙';
+            toggleButton.title = 'Switch to Light Mode';
+        } else {
+            body.classList.remove('dark-mode');
+            toggleButton.textContent = '☀️';
+            toggleButton.title = 'Switch to Dark Mode';
+        }
+    }
+
+    /* --- MOBILE NAV TOGGLE (NEW) --- */
+    function toggleNav() {
+        document.getElementById('nav-toc').classList.toggle('open');
+        const button = document.getElementById('nav-toggle-button');
+        if (document.getElementById('nav-toc').classList.contains('open')) {
+            button.textContent = '✕'; // Close icon
+        } else {
+            button.textContent = '☰'; // Hamburger icon
+        }
+    }
+
+    /* --- MODULE SWITCHING (UPDATED) --- */
+    function showModule(moduleId) {
+        // Deactivate all previous module pages
+        document.querySelectorAll('.module-page').forEach(page => {
+            page.classList.remove('active');
+        });
+
+        const moduleToShow = document.getElementById(moduleId);
+        if (moduleToShow) {
+            // Apply new class which triggers the CSS animation
+            // This is handled by CSS (opacity/transform transition)
+            moduleToShow.classList.add('active');
+            updateHeaderTitle(moduleId);
+        }
+        
+        document.querySelectorAll('.nav-toc a').forEach(link => {
+            link.classList.remove('active');
+            if (link.id === `nav-${moduleId}`) {
+                link.classList.add('active');
+                markAsCompleted(moduleId); 
+            }
+        });
+        
+        // Auto-close nav on small screens after selection
+        if (window.innerWidth <= 850 && document.getElementById('nav-toc').classList.contains('open')) {
+            toggleNav();
+        }
+    }
+
+    function markAsCompleted(moduleId) {
+        const link = document.getElementById(`nav-${moduleId}`);
+        if (link && !link.classList.contains('completed')) {
+            link.classList.add('completed');
+            localStorage.setItem(`completed_${moduleId}`, 'true');
+        }
+    }
+
+    function updateHeaderTitle(moduleId) {
+        const titleMap = {
+            'module1': '1: PROGRAM STRUCTURE',
+            'module2': '2: VARIABLES & AUTO',
+            'module3': '3: FUNCTIONS & CONST&',
+            'module4': '4: IF/ELSE (C++17)',
+            'module5': '5: LOOPS & RANGES',
+            'module7': '7: VECTORS & SAFETY',
+            'module8': '8: STRUCTS & ENUMS',
+            'module9': '9: SMART POINTERS & RAII 🏆',
+            'module10': '10: CLASSES & RULE OF 5',
+            'module11': '11: CONST CORRECTNESS',
+            'module12': '12: OPERATOR OVERLOADING',
+            'module13': '13: FILE I/O (STREAMS)',
+            'module14': '14: INHERITANCE & VIRTUAL DTORE',
+            'module15': '15: TEMPLATES & CONCEPTS',
+            'module16': '16: EXCEPTION HANDLING',
+            'module17': '17: LAMBDAS & STL',
+            'module18': '18: MOVE SEMANTICS',
+            'module19': '19: CONCURRENCY & THREADS',
+            'module20': '20: MODERN UTILITY',
+            'module6': '6: ULTIMATE ADVENTURE 🌟'
+        };
+        const headerTitle = document.getElementById('main-header-title');
+        const badge = document.getElementById('current-module-badge');
+        
+        if (badge) {
+            badge.textContent = titleMap[moduleId] || 'ULTIMATE PRO EDITION';
+            badge.classList.add('show');
+        }
+    }
+
+    /* --- INIT APP --- */
+    function initApp() {
+        loadThemePreference();
+        showModule('module1'); 
+        
+        // Restore completed status
+        document.querySelectorAll('.nav-toc a').forEach(link => {
+            const moduleId = link.id.replace('nav-', '');
+            if (localStorage.getItem(`completed_${moduleId}`) === 'true') {
+                link.classList.add('completed');
+            }
+        });
+        document.querySelectorAll('.warning').forEach(warning => {
+            warning.addEventListener('click', () => {
+                warning.classList.toggle('expanded');
+            });
+        });
+    }
+
+    /* --- SIMULATION/QUIZ LOGIC (RETAINED) --- */
+    function simulate_m2_calc() {
+        const num1 = parseFloat(document.getElementById('m2_num1').value) || 0;
+        const num2 = parseFloat(document.getElementById('m2_num2').value) || 0;
+        const sum = num1 + num2;
+        document.getElementById('m2_output').textContent = `// std::cin read: ${num1} and ${num2}\n// auto sum = num1 + num2;\nOutput: The sum is ${sum}.`;
+    }
+    
+    let is_running_m5 = false;
+    let loop_state = { i: 0, max: 3, step: 0 }; 
+    let result_m5 = "Console Output:\n";
+
+    function simulate_m5_loop_animated() {
+        if (is_running_m5) return;
+
+        is_running_m5 = true;
+        loop_state = { i: 0, max: 3, step: 0 }; 
+        result_m5 = "Console Output:\n";
+        document.getElementById('m5_output').textContent = result_m5;
+        
+        const codeLines = [
+            document.getElementById('m5_step0'), 
+            document.getElementById('m5_step1'), 
+            document.getElementById('m5_step2'), 
+            document.getElementById('m5_step3')  
+        ];
+
+        function highlightLine(index, type) {
+            codeLines.forEach((line) => { line.className = ''; });
+            if (index >= 0) {
+                codeLines[index].classList.add(`highlight-${type}`);
+            }
+        }
+        
+        // Step 0: Initializer (Runs once)
+        highlightLine(0, 'init');
+        document.getElementById('m5_output').textContent = `i is initialized to 0\n`;
+        setTimeout(runCondition, 700);
+
+        function runCondition() {
+            highlightLine(1, 'cond');
+            if (loop_state.i < loop_state.max) {
+                document.getElementById('m5_output').textContent += `\nChecking condition (i < 3): ${loop_state.i} < 3 is TRUE.`;
+                setTimeout(runBody, 700);
+            } else {
+                document.getElementById('m5_output').textContent += `\nChecking condition (i < 3): ${loop_state.i} < 3 is FALSE.`;
+                setTimeout(finishLoop, 700);
+            }
+        }
+
+        function runBody() {
+            highlightLine(2, 'body');
+            result_m5 += `${loop_state.i}\n`;
+            document.getElementById('m5_output').textContent += `\nExecuting body. Output: ${loop_state.i}`;
+            setTimeout(runIncrement, 700);
+        }
+
+        function runIncrement() {
+            highlightLine(3, 'inc');
+            loop_state.i++;
+            document.getElementById('m5_output').textContent += `\nExecuting increment. i is now ${loop_state.i}`;
+            setTimeout(runCondition, 700); 
+        }
+
+        function finishLoop() {
+            highlightLine(-1); 
+            is_running_m5 = false;
+            document.getElementById('m5_output').textContent += "\n\nLoop finished. Final result: 0\n1\n2";
+        }
+    }
+
+    function check_m5_quiz() {
+        const resultDiv = document.getElementById('m5_quiz_result');
+        const radios = document.getElementsByName('loop_quiz');
+        let answer = null;
+        for (const radio of radios) {
+            if (radio.checked) {
+                answer = radio.value;
+                break;
+            }
+        }
+
+        if (answer === 'continue') {
+            resultDiv.innerHTML = "✅ Correct! `continue` skips the rest of the current iteration and jumps to the next one.";
+            resultDiv.style.color = 'var(--color-accent-teal)';
+        } else if (answer === 'break') {
+            resultDiv.innerHTML = "❌ Incorrect. `break` exits the loop entirely.";
+            resultDiv.style.color = 'var(--color-accent-hot)';
+        } else {
+             resultDiv.innerHTML = "❌ Incorrect. `return` exits the entire function.";
+            resultDiv.style.color = 'var(--color-accent-hot)';
+        }
+    }
+
+    function simulate_m20_optional() {
+        const target = parseInt(document.getElementById('m20_input').value);
+        const output = document.getElementById('m20_output');
+        let result = "C++ Logic:\nstd::optional<int> findElement(int target) {\n";
+
+        if (isNaN(target)) {
+            output.innerHTML = "Please enter a valid number.";
+            output.style.color = 'var(--color-code-bg)';
+            return;
+        }
+
+        if (target === 42) {
+            result += `  if (target == 42) { return 42; } // TRUE\n`;
+            result += `}\n\nmain() {\n  auto val = findElement(${target});\n  if (val) { // TRUE\n    std::cout << val.value(); // Output: 42\n  }\n}`;
+            output.innerHTML = result;
+            output.style.color = 'var(--color-accent-teal)';
+        } else {
+            result += `  if (target == 42) { ... } // FALSE\n`;
+            result += `  return std::nullopt; // Explicitly returns no value\n`;
+            result += `}\n\nmain() {\n  auto val = findElement(${target});\n  if (val) { // FALSE\n    // Block skipped\n  }\n}`;
+            output.innerHTML = result;
+            output.style.color = 'var(--color-accent-hot)';
+        }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- StAuth10244: I Yonatan Ibragimov, 000920169 certify that this material is my original work. No other person's work has been used without due acknowledgement. I have not made my work available to anyone else.-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Clothing Drop Off</title>
+    
+    <!-- Bootstap Link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+    /* Custom color utilities */
+        .bg-custom-beige { background-color: #ffffe6 !important; }
+        .bg-custom-brown { background-color: #663300 !important; }
+        .bg-custom-burgundy { background-color: #dec0a0 !important; }
+        .btn-customdarkBeige { background-color: #999966 !important; color: white; }
+        .bg-customdarkBeige { background-color: #392714 !important; }
+    </style>
+
+</head>
+<body class="bg-custom-beige">
+    <!-- Navbar -->
+    <h1 class="text-center">The Clothing Drop Off</h1>
+
+    <div class="container text-center mt-5 p-2 bg-custom-burgundy rounded filterNav d-flex flex-wrap flex-md-row flex-column justify-content-center">
+        <a id="allBtn" class="btn btn-customdarkBeige m-2" href="" role="button">Full Map</a>
+        <a id="dtnBtn" class="btn btn-customdarkBeige m-2" href="" role="button">Downtown Locations</a>
+        <a id="surrBtn" class="btn btn-customdarkBeige m-2" href="" role="button">Surrounding Locations</a>
+        <a id="recAdd" class="btn btn-customdarkBeige m-2" href="" role="button">Recently Added</a>
+        <a id="findMeBtn" class="btn btn-customdarkBeige m-2" href="" role="button">Find Me!</a>   
+    </div>
+
+    <div class="container">
+        <div class="row mt-2 justify-content-center align-items-top gx-0">
+            
+            <div class="col-lg-8 col-md-6 text-center my-2 p-2 bg-custom-brown mapContainer">
+                <!-- Desktop / Tablet version -->
+                <div id="map" class="w-100 d-none d-md-block" style="height: 800px;"></div>
+
+                <!-- Mobile version -->
+                <div id="mapMobile" class="w-100 d-block d-md-none" style="height: 400px;"></div>
+
+                <!-- The script housing the async loading of the map and the initMap function -->
+                <script async
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP3ZrfC1f2OPiVVMKTaDXWZlTa1hTIjL8&loading=async&callback=initMap&libraries=marker,geocoding">
+                </script>
+                <script>
+                    // See the official Google Map documentation here:
+                    //   https://developers.google.com/maps/documentation/javascript/overview
+                    let map;
+                    const mapMarkers = [];
+                    function initMap()
+                    {
+                        directionsService = new google.maps.DirectionsService();
+                        directionsRenderer = new google.maps.DirectionsRenderer();
+                        const mapContainer = window.innerWidth < 768 
+                            ? document.getElementById("mapMobile") 
+                            : document.getElementById("map");
+                        map = new google.maps.Map(mapContainer, 
+                            {center: { lat: 43.2387, lng: -79.8881 },
+                            zoom: 12,
+                            mapId: "a290d01e43bfb8c69839bd15"
+                        });
+
+                        directionsRenderer.setMap(map);
+            
+                        // Locations that are marked on the map for donation spots
+                        const markerLocations = [
+                            { position: { lat: 43.2595, lng: -79.8610 }, title: "Good Shepherd Venture Centre", content: "<b>Good Shepherd Venture Centre</b><br>155 Cannon St E – accepts clothing, linens, and small household goods. Donations help support local families in need.", type: "downtown" },
+                            { position: { lat: 43.2390, lng: -79.8395 }, title: "Goodwill Career & Donation Centre – Hamilton Mountain", content: "<b>Goodwill Career & Donation Centre – Hamilton Mountain</b><br>1050 Upper Gage Ave – accepts gently used clothing and accessories. Open daily during business hours.", type: "surrounding" },
+                            { position: { lat: 43.2658, lng: -79.8399 }, title: "Mission Thrift Store Hamilton", content: "<b>Mission Thrift Store Hamilton</b><br>601 Burlington St E – accepts clothing, small furniture, and home décor. Sales support community outreach programs.", type: "surrounding" },
+                            { position: { lat: 43.2448, lng: -79.9001 }, title: "Salvation Army Mountain Thrift Store", content: "<b>Salvation Army Mountain Thrift Store</b><br>835 Stone Church Rd E – accepts clothing, shoes, and household donations from 10 am–8 pm daily.", type: "surrounding" },
+                            { position: { lat: 43.2560, lng: -79.9005 }, title: "St. Vincent de Paul – Parkdale", content: "<b>St. Vincent de Paul – Parkdale</b><br>200 Parkdale Ave N – clothing and footwear donations accepted during store hours. Supports low-income residents.", type: "downtown" },
+                            { position: { lat: 43.2540, lng: -79.8587 }, title: "St. Vincent de Paul – Hamilton West", content: "<b>St. Vincent de Paul – Hamilton West</b><br>25 Main St W – accepts seasonal clothing and small household donations Wed–Fri, 11 am–5 pm.", type: "downtown" },
+                            { position: { lat: 43.2651, lng: -79.8690 }, title: "Eva Rothwell Centre", content: "<b>Eva Rothwell Centre</b><br>460 Wentworth St N – accepts casual clothing and warm wear. Donations benefit local families and youth.", type: "recent" },
+                            { position: { lat: 43.2553, lng: -79.8629 }, title: "Living Rock Ministries", content: "<b>Living Rock Ministries</b><br>30 Wilson St – accepts T-shirts, jeans, and youth clothing. Drop-off Mon–Fri 8 am–6 pm; weekends 1 pm–6 pm.", type: "downtown" },
+                            { position: { lat: 43.2483, lng: -79.9300 }, title: "Parkview Church – Yellow House", content: "<b>Parkview Church – Yellow House</b><br>80 Hamilton St N – accepts new and gently used clothing Mon, Tue, Thu, Fri 10:30 am–1 pm.", type: "surrounding" },
+                            { position: { lat: 43.2568, lng: -79.8685 }, title: "Dress for Success Hamilton", content: "<b>Dress for Success Hamilton</b><br>50 King St E – accepts women’s professional attire to support employment readiness programs.", type: "recent" },
+                            { position: { lat: 43.2612, lng: -79.8490 }, title: "The Giving Closet Thrift Shop", content: "<b>The Giving Closet Thrift Shop</b><br>1162 Barton St E – accepts gently used clothing, shoes, and accessories. Proceeds go toward local outreach.", type: "downtown" },
+                            { position: { lat: 43.2598, lng: -79.8765 }, title: "Helping Hands Street Mission", content: "<b>Helping Hands Street Mission</b><br>669 Barton St E – accepts clean clothing and hygiene essentials Mon, Wed, Fri 11 am–4 pm.", type: "downtown" },
+                            { position: { lat: 43.2605, lng: -79.8050 }, title: "Community Living Hamilton – Drop ’n’ Shop", content: "<b>Community Living Hamilton – Drop ’n’ Shop</b><br>37 Kilbride Rd – accepts clothing, toys, and small household items to support people with developmental disabilities.", type: "surrounding" },
+                            { position: { lat: 43.2565, lng: -79.8575 }, title: "SSVP Hamilton – Parkdale Store", content: "<b>SSVP Hamilton – Parkdale Store</b><br>200 Parkdale Ave N – accepts wearable clothing, shoes, and outerwear for redistribution.", type: "downtown" },
+                            { position: { lat: 43.2620, lng: -79.8285 }, title: "Hamilton Dream Center", content: "<b>Hamilton Dream Center</b><br>Blue Door Market – accepts clean, gently used clothing for free local distribution.", type: "recent" }
+                        ];
+
+                        
+                        // Loop to create markers and info windows for each location
+                        markerLocations.forEach(loc => {
+                            const marker = new google.maps.Marker({
+                                position: loc.position,
+                                map,
+                                title: loc.title
+                            });
+                            const info = new google.maps.InfoWindow({
+                                content: loc.content
+                            });
+                            marker.addListener("click", () => {
+                                info.open(map, marker);
+                            });
+                            mapMarkers.push(marker);
+                        });
+
+                        const startSelect = document.getElementById("startLoc");
+                        const endSelect = document.getElementById("endLoc");
+
+                        markerLocations.forEach(loc => {
+                            const optionStart = document.createElement("option");
+                            optionStart.value = JSON.stringify(loc.position); // store lat/lng
+                            optionStart.textContent = loc.title;
+                            startSelect.appendChild(optionStart);
+
+                            const optionEnd = optionStart.cloneNode(true);
+                            endSelect.appendChild(optionEnd);
+                        });
+
+                        //Button filters
+                        document.getElementById("allBtn").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            mapMarkers.forEach(marker => marker.setMap(map));
+                            map.setCenter({ lat: 43.2387, lng: -79.8881 });
+                            map.setZoom(12);
+                        });
+
+                        document.getElementById("dtnBtn").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            mapMarkers.forEach((marker, index) => {
+                                if (markerLocations[index].type === "downtown") {
+                                    marker.setMap(map);
+                                } else {
+                                    marker.setMap(null);
+                                }
+                            });
+                            map.setCenter({ lat: 43.2550, lng: -79.8800 });
+                            map.setZoom(13);
+                        });
+
+                        document.getElementById("surrBtn").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            mapMarkers.forEach((marker, index) => {
+                                if (markerLocations[index].type === "surrounding") {
+                                    marker.setMap(map);
+                                } else {
+                                    marker.setMap(null);
+                                }
+                            });
+                            map.setCenter({ lat: 43.2500, lng: -79.8700 });
+                            map.setZoom(12);
+                        });
+
+                        document.getElementById("recAdd").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            mapMarkers.forEach((marker, index) => {
+                                if (markerLocations[index].type === "recent") {
+                                    marker.setMap(map);
+                                } else {
+                                    marker.setMap(null);
+                                }
+                            });
+                            map.setCenter({ lat: 43.2500, lng: -79.8700 });
+                            map.setZoom(12);
+                        });
+
+                        document.getElementById("findMeBtn").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            // Try HTML5 geolocation to get the user's current location.
+                            if (navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition((pos) => {
+                                    const userLoc = {
+                                        lat: pos.coords.latitude,
+                                        lng: pos.coords.longitude
+                                    };
+                                    const markerUser = new google.maps.Marker({
+                                        position: userLoc,
+                                        map,
+                                        title: "You are here!",
+                                        icon: {
+                                        url: "https://imgs.search.brave.com/M50z2Ze1XG1SyhUi-jKYI-9bxw6MJ7zsPVuV3MSKkqs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/aWNvbnMtcG5nLmZs/YXRpY29uLmNvbS8x/MjgvMTQ5NjkvMTQ5/Njk4NDYucG5n", // relative to your site root
+                                        scaledSize: new google.maps.Size(50, 50), // resize to fit map scale
+                                    }
+                                    });
+                                    const userInfo = new google.maps.InfoWindow({
+                                        content: "<b>You are here!</b>"
+                                    });
+                                    markerUser.addListener("click", () => {
+                                        userInfo.open(map, markerUser);
+                                    });
+                                    
+                                    const startSelect = document.getElementById("startLoc");
+                                    const endSelect = document.getElementById("endLoc");
+
+                                    const existingOption = Array.from(startSelect.options).find(opt => opt.textContent === "Your Location");
+
+                                    if (!existingOption) {
+                                        const newOption = document.createElement("option");
+                                        newOption.value = JSON.stringify(userLoc);
+                                        newOption.textContent = "Your Location";
+                                        startSelect.appendChild(newOption);
+
+                                        const newOption2 = newOption.cloneNode(true);
+                                        endSelect.appendChild(newOption2);
+                                    }
+
+                                    map.setCenter(userLoc);
+                                    map.setZoom(14);
+                                }, 
+                                () => { 
+                                    alert("Geolocation permission denied or unavailable."); 
+                                });
+                            } else {                               
+                                alert("Your browser doesn't support geolocation.");
+                            }
+                        });
+
+                        document.getElementById("getDirections").addEventListener("click", (e) =>{
+                            e.preventDefault;
+                            const spot1 = JSON.parse(document.getElementById("startLoc").value);
+                            const spot2 = JSON.parse(document.getElementById("endLoc").value);
+                            const tMode = document.getElementById("travelMode").value;
+                            request = {
+                                origin: spot1, 
+                                destination: spot2,
+                                travelMode: google.maps.TravelMode[tMode.toUpperCase()]
+                            };
+
+                            // use the directions service and directions renderer to render the 
+                            // directions on the map
+                            directionsService.route(request, function(result, status) {
+                                if (status == 'OK') {
+                                directionsRenderer.setDirections(result);
+                                console.log(result);
+                                }
+                            });
+                        });
+
+                        document.getElementById("addLocation").addEventListener("click", (e) => {
+                            e.preventDefault();
+                            const name = document.getElementById("locName").value;
+                            const address = document.getElementById("locAddress").value;
+                            const infoText = document.getElementById("locInfo").value;
+                            const type = document.getElementById("locType").value;
+
+                            if (!name || !address || !infoText) {
+                                alert("Please fill in all fields.");
+                                return;
+                            }
+
+                            // Geocode the address to get latitude and longitude
+                            const geocoder = new google.maps.Geocoder();
+                            geocoder.geocode({ address: address }, (results, status) => {
+                                if (status === "OK") {
+                                    const position = results[0].geometry.location;
+
+                                    const newMarker = new google.maps.Marker({
+                                        position: position,
+                                        map,
+                                        title: name
+                                    });
+
+                                    const newInfo = new google.maps.InfoWindow({
+                                        content: `<b>${name}</b><br>${infoText}`
+                                    });
+
+                                    newMarker.addListener("click", () => {
+                                        newInfo.open(map, newMarker);
+                                    });
+
+                                    mapMarkers.push(newMarker);
+                                    markerLocations.push({position: { lat: position.lat(), lng: position.lng() }, title: name, content: `<b>${name}</b><br>${infoText}`, type: type});
+
+                                    // Update list of places accesible in the directions menus
+                                    const startSelect = document.getElementById("startLoc");
+                                    const endSelect = document.getElementById("endLoc");
+
+                                    const newOptionStart = document.createElement("option");
+                                    newOptionStart.value = JSON.stringify({ lat: position.lat(), lng: position.lng() });
+                                    newOptionStart.textContent = name;
+                                    startSelect.appendChild(newOptionStart);
+
+                                    const newOptionEnd = newOptionStart.cloneNode(true);
+                                    endSelect.appendChild(newOptionEnd);
+
+                                    // focus map on new added point
+                                    map.setCenter(position);
+                                    map.setZoom(14);
+                                    // Clear form fields
+                                    document.getElementById("locName").value = "";
+                                    document.getElementById("locAddress").value = "";
+                                    document.getElementById("locInfo").value = "";
+                                    document.getElementById("locType").value = "";
+                                } else {
+                                    alert("Geocode was not successful for the following reason: " + status);
+                                }
+                            });
+                        });
+                    }
+
+                    function showMarkers(type){
+                        markers.forEach((marker) => {
+                            if (type === 'all' || marker.type === type) {
+                                marker.setMap(map);
+                            } else {
+                                marker.setMap(null);
+                            }
+                        });
+                    }
+                    // Reinitialize map when crossing Bootstrap breakpoints
+                    window.addEventListener("resize", () => {
+                        const currentWidth = window.innerWidth;
+                        const isMobileNow = currentWidth < 768;
+                        const mapDiv = isMobileNow ? document.getElementById("mapMobile") : document.getElementById("map");
+
+                        // If the visible map container is empty, reinit the map
+                        if (!mapDiv.hasChildNodes()) {
+                            initMap();
+                        }
+                    });
+
+                </script>
+            </div>
+            <div class="col-lg-3 col-md-6 height: 400px w-40">
+                <div class="text-center mt-2 p-2 bg-custom-brown directions">
+                    <h5 class="text-center text-white">Get Directions</h5>
+                    <form class="row">  
+                        <div class="mb-3">
+                            <label for="startLoc" class="form-label text-white">Start Location</label>
+                            <select class="form-select" id="startLoc">   
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endLoc" class="form-label text-white">End Location</label>
+                            <select class="form-select" id="endLoc">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="travelMode" class="form-label text-white">Travel Mode</label>
+                            <select class="form-select" id="travelMode">
+                                <option>DRIVING</option>
+                                <option>BICYCLING</option>
+                                <option>WALKING</option>
+                            </select>
+                        </div>
+                    </form>
+                    <button id="getDirections" type="button" class="btn btn-customdarkBeige d-block mx-auto my-2">Get Directions</button>
+                </div>
+                <div class="text-center mt-2 p-2 bg-custom-brown addLocationForm height: 400px w-40">
+                    <h5 class="text-center text-white">Add a Location</h5>
+                    <form class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="locName" class="form-label text-white">Location Name</label>
+                            <input type="text" class="form-control" id="locName" placeholder="Enter location name">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="locAddress" class="form-label text-white">Address</label>
+                            <input type="text" class="form-control" id="locAddress" placeholder="Enter address">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="locInfo" class="form-label text-white">Information</label>
+                            <input type="text" class="form-control" id="locInfo" placeholder="Enter More Information">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="locType" class="form-label text-white">Location Type</label>
+                            <select class="form-select" id="locType">
+                                <option value="downtown">Downtown</option>
+                                <option value="surrounding">Surrounding</option>
+                                <option value="recent">Recently Added</option>
+                            </select>
+                        </div>
+                        
+                        
+                    </form>
+                    <button id="addLocation" type="button" class="btn btn-customdarkBeige">Add Place</button>
+                </div> 
+            </div>
+        </div>
+
+    </div>
+    
+    
+
+    
+    
+    <!--Footer-->
+    <div class="container text-center mt-5 mb-3 p-2 bg-customdarkBeige rounded"></div>
+</body>
+</html>
+

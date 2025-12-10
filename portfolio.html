@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yonatan Ibragimov // Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root {
+            /* Default Neon Dark Theme */
+            --color-scheme: dark;
+            
+            /* Fallback/Initial Values for Dark Mode */
+            --bg-color-main: #000;
+            --glass-bg-main: rgba(255, 255, 255, 0.08); /* Default transparency */
+            --glass-bg-hover: rgba(255, 255, 255, 0.12); /* Slightly less transparent on hover for contrast */
+            --glass-border-main: rgba(255, 255, 255, 0.15);
+            --text-primary-main: #f5f5f5;
+            --text-secondary-main: #bbbbbb;
+            --terminal-bg: rgba(10, 10, 10, 0.8);
+            --terminal-bg-strong: rgba(10, 10, 10, 0.95); 
+
+            /* CLI Customization (Initial Neon Blue) */
+            --accent: #00ccff; /* Neon Blue */
+            --error: #ff5555;
+            --prompt: #66ff66; /* Neon Green */
+            --command: #66aaff; /* Light Blue */
+            --accent-shadow: rgba(0, 204, 255, 0.5);
+            --accent-tag-hover: rgba(0, 204, 255, 0.25);
+        }
+
+        /* --- DARK MODE DEFINITION --- */
+        :root[data-theme="dark"] {
+            --bg-color-main: #000;
+            --glass-bg-main: rgba(255, 255, 255, 0.08);
+            --glass-bg-hover: rgba(255, 255, 255, 0.12);
+            --glass-border-main: rgba(255, 255, 255, 0.15);
+            --text-primary-main: #f5f5f5;
+            --text-secondary-main: #bbbbbb;
+            --terminal-bg: rgba(10, 10, 10, 0.8);
+            --terminal-bg-strong: rgba(10, 10, 10, 0.95);
+        }
+
+        /* --- LIGHT MODE DEFINITION --- */
+        :root[data-theme="light"] {
+            --bg-color-main: #f0f0f0;
+            --glass-bg-main: rgba(255, 255, 255, 0.6);
+            --glass-bg-hover: rgba(255, 255, 255, 0.8);
+            --glass-border-main: rgba(0, 0, 0, 0.1);
+            --text-primary-main: #222222;
+            --text-secondary-main: #666666;
+            --terminal-bg: rgba(255, 255, 255, 0.9);
+            --terminal-bg-strong: rgba(255, 255, 255, 0.98);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: var(--bg-color-main);
+            color: var(--text-primary-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        /* --- Background --- */
+        #background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            background: radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 1) 100%);
+        }
+        :root[data-theme="light"] #background-container {
+            background: radial-gradient(circle at 10% 20%, rgba(240, 240, 240, 0.8) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+        .static-noise-texture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.03; 
+            pointer-events: none;
+            animation: noise-move 0.1s steps(2) infinite;
+        }
+        :root[data-theme="light"] .static-noise-texture {
+            opacity: 0.05;
+        }
+        @keyframes noise-move {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(-0.5px, 0.5px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* --- LOADING SCREEN (NEW: Terminal Boot) --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out; 
+            overflow: hidden; 
+        }
+
+        .loader-content {
+            text-align: left; /* Aligned left for boot sequence */
+            position: relative;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1rem;
+            color: #66ff66; /* Bright green for boot text */
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        .boot-line {
+            white-space: pre-wrap;
+            overflow: hidden;
+            border-right: 0.15em solid #66ff66; /* Green caret */
+            animation: blink-caret-boot 0.75s step-end infinite;
+            padding: 0.2rem 0;
+            min-height: 1.5rem; /* Ensure stability */
+        }
+        .boot-line:last-child {
+            border-right: none;
+            animation: none;
+        }
+        .boot-line:last-child.typing {
+            border-right: 0.15em solid #66ff66;
+            animation: blink-caret-boot 0.75s step-end infinite;
+        }
+        @keyframes blink-caret-boot {
+            from, to { border-color: transparent }
+            50% { border-color: #66ff66 }
+        }
+        
+        /* --- MAIN CONTENT (Restored to single column) --- */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease 0.8s;
+        }
+        #main-content.loaded {
+            opacity: 1;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+        }
+
+        /* --- Glass Card/Hover Contrast Fix (RETAINED) --- */
+        .glass-card {
+            background: var(--glass-bg-main);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border-main);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            color: var(--text-primary-main);
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -5px; right: -5px; bottom: -5px; left: -5px;
+            border-radius: 2rem;
+            background: linear-gradient(45deg, var(--accent) 50%, rgba(0, 204, 255, 0.4) 100%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .glass-card:hover {
+            background: var(--glass-bg-hover); /* Increased opacity for contrast */
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-shadow);
+        }
+        .glass-card:hover::before {
+            opacity: 0.2; /* Reduced glow opacity for better text contrast */
+        }
+        /* Ensure secondary text is readable on hover */
+        .glass-card:hover p.exp-detail, 
+        .glass-card:hover .project-content p,
+        .glass-card:hover .text-secondary-main {
+            color: var(--text-primary-main); /* Pop text to white/black on hover */
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--text-primary-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* NEW: Subtle glow animation for the title */
+            animation: titleGlow 4s infinite alternate, pulseText 4s ease-in-out infinite;
+        }
+        @keyframes pulseText {
+            0% { filter: brightness(100%); }
+            100% { filter: brightness(120%); }
+        }
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 5px var(--accent-shadow); }
+            50% { text-shadow: 0 0 15px var(--accent-shadow); }
+            100% { text-shadow: 0 0 5px var(--accent-shadow); }
+        }
+        .typing-text {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--accent);
+            animation: typing 1.5s steps(30, end), blink-caret 0.75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent) }
+        }
+        /* Terminal */
+        .terminal-window {
+            width: 100%;
+            max-width: 900px;
+            margin: 2.5rem auto;
+            min-height: 400px;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .terminal-window:hover {
+            background: var(--glass-bg-hover); 
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-shadow);
+            transform: none; /* Override default glass-card transform */
+        }
+        .terminal-window:hover #terminal {
+            background: var(--terminal-bg-strong); 
+        }
+
+        #terminal {
+            height: 300px;
+            overflow-y: auto;
+            padding: 1.25rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: var(--text-primary-main);
+            border-radius: 1rem;
+            background: var(--terminal-bg);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            text-shadow: 0 0 1px var(--accent-shadow); 
+            transition: background 0.3s ease;
+        }
+        .command-output {
+            padding: 0.1rem 0;
+        }
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+        .prompt-text {
+            color: var(--prompt);
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        .command-command {
+            color: var(--command);
+        }
+        .command-error {
+            color: var(--error);
+        }
+        .command-accent {
+            color: var(--accent);
+        }
+        #commandInput {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary-main);
+            font-family: inherit;
+            font-size: 1rem;
+            flex-grow: 1;
+            caret-color: var(--text-primary-main);
+        }
+        #commandInput::placeholder {
+            color: var(--text-secondary-main);
+            opacity: 0.6;
+        }
+        .input-line:has(#commandInput:focus) {
+            border-bottom: 1px solid var(--accent);
+            animation: inputGlow 1s infinite alternate;
+        }
+        @keyframes inputGlow {
+            from { border-color: var(--accent); box-shadow: 0 1px 3px var(--accent-shadow); }
+            to { border-color: var(--text-secondary-main); box-shadow: none; }
+        }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background-color: var(--text-primary-main);
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        /* --- Sections --- */
+        .section {
+            margin-bottom: 5rem;
+            padding-top: 2rem;
+            display: none; 
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+            color: var(--accent);
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-shadow);
+        }
+        /* About Me specific styling */
+        #about-section p {
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+        }
+        .exp-detail {
+            font-size: 1rem;
+            color: var(--text-secondary-main);
+        }
+        /* Projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .project-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        .project-content p {
+            color: var(--text-secondary-main);
+            font-size: 0.95rem;
+        }
+        .project-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            transition: color 0.2s;
+        }
+        .project-link:hover {
+            color: var(--text-primary-main);
+        }
+        /* Skills */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .skill-tag {
+            background: var(--glass-bg-main);
+            border: 1px solid var(--glass-border-main);
+            color: var(--text-primary-main);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            animation: tagFadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        .section.active .skill-tag {
+            opacity: 1;
+        }
+        .skill-tag:nth-child(1) { animation-delay: 0.1s; }
+        .skill-tag:nth-child(2) { animation-delay: 0.2s; }
+        .skill-tag:nth-child(3) { animation-delay: 0.3s; }
+        .skill-tag:nth-child(4) { animation-delay: 0.4s; }
+        .skill-tag:nth-child(5) { animation-delay: 0.5s; }
+        .skill-tag:nth-child(6) { animation-delay: 0.6s; }
+        .skill-tag:nth-child(7) { animation-delay: 0.7s; }
+        .skill-tag:nth-child(8) { animation-delay: 0.8s; }
+        .skill-tag:nth-child(9) { animation-delay: 0.9s; }
+        .skill-tag:nth-child(10) { animation-delay: 1.0s; }
+        .skill-tag:nth-child(11) { animation-delay: 1.1s; }
+        .skill-tag:nth-child(12) { animation-delay: 1.2s; }
+        .skill-tag:nth-child(13) { animation-delay: 1.3s; }
+        .skill-tag:nth-child(14) { animation-delay: 1.4s; }
+        .skill-tag:nth-child(15) { animation-delay: 1.5s; }
+        @keyframes tagFadeIn {
+            from { opacity: 0; transform: scale(0.8) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .skill-tag:hover {
+            background: var(--accent-tag-hover);
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-shadow);
+            transform: scale(1.05);
+        }
+        .skill-category {
+            width: 100%;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--command);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        /* Contact */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .contact-item {
+            text-align: center;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .contact-item:hover {
+            transform: scale(1.05);
+        }
+        .contact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-shadow);
+        }
+        .contact-item h3 {
+            color: var(--text-primary-main);
+        }
+        /* RADIAL MENU (RESTORED) */
+        #radial-menu-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            color: var(--bg-color-main);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 6px 20px rgba(0, 204, 255, 0.4);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        #radial-menu-btn.open {
+            background: var(--text-primary-main);
+            color: var(--accent);
+            transform: rotate(45deg);
+        }
+        #radial-menu-btn:hover {
+            transform: scale(1.1) rotate(0deg);
+        }
+        .radial-menu {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 99;
+        }
+        .radial-item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg-main);
+            border: 1px solid var(--glass-border-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary-main);
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            top: 5px; 
+            left: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .radial-item:hover {
+            background: var(--accent-tag-hover);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-shadow); 
+        }
+        .radial-menu.active .radial-item {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .radial-menu.active .radial-item:nth-child(1) { transform: translate(-50px, -150px) scale(1); transition-delay: 0.05s; }
+        .radial-menu.active .radial-item:nth-child(2) { transform: translate(-50px, -210px) scale(1); transition-delay: 0.1s; }
+        .radial-menu.active .radial-item:nth-child(3) { transform: translate(-50px, -270px) scale(1); transition-delay: 0.15s; }
+        .radial-menu.active .radial-item:nth-child(4) { transform: translate(-50px, -330px) scale(1); transition-delay: 0.2s; }
+        .radial-menu.active .radial-item:nth-child(5) { transform: translate(-50px, -390px) scale(1); transition-delay: 0.25s; }
+        .radial-menu.active .radial-item:nth-child(6) { transform: translate(-50px, -450px) scale(1); transition-delay: 0.3s; }
+
+        /* Project Modal */
+        #project-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 200;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 1.5rem;
+        }
+        #project-view.active {
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+        }
+        #project-header {
+            display: flex;
+            justify-content: flex-end; 
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        #project-title {
+            display: none; 
+        }
+        #project-close-btn {
+            background: var(--accent);
+            color: var(--bg-color-main);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #project-close-btn:hover {
+            background: var(--text-primary-main);
+            color: var(--bg-color-main);
+            transform: scale(1.05);
+        }
+        #project-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            border-radius: 1rem;
+            background: #111;
+        }
+        /* Scrollbar */
+        #terminal::-webkit-scrollbar {
+            width: 6px;
+        }
+        #terminal::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        #terminal::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        /* --- Theme Selector (RESTORED FIXED POSITION) --- */
+        #theme-controls {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .color-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: 0 0 5px var(--accent-shadow);
+        }
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+        .color-swatch.active {
+            border-color: var(--text-primary-main);
+            transform: scale(1.15);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .theme-toggle-btn {
+            background: var(--glass-bg-main);
+            border: 1px solid var(--glass-border-main);
+            color: var(--text-primary-main);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(0, 204, 255, 0.15);
+        }
+        .theme-toggle-btn i {
+            margin-right: 0.5rem;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            #terminal {
+                height: 300px;
+                font-size: 0.85rem;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            #radial-menu-btn {
+                bottom: 1.5rem;
+                right: 1.5rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            /* Adjusting radial menu items for mobile */
+            .radial-menu.active .radial-item:nth-child(1) { transform: translate(-50px, -150px) scale(1); }
+            .radial-menu.active .radial-item:nth-child(2) { transform: translate(-50px, -210px) scale(1); }
+            .radial-menu.active .radial-item:nth-child(3) { transform: translate(-50px, -270px) scale(1); }
+            .radial-menu.active .radial-item:nth-child(4) { transform: translate(-50px, -330px) scale(1); }
+            .radial-menu.active .radial-item:nth-child(5) { transform: translate(-50px, -390px) scale(1); }
+            .radial-menu.active .radial-item:nth-child(6) { transform: translate(-50px, -450px) scale(1); }
+            /* Mobile Theme Controls */
+            #theme-controls {
+                top: 1rem;
+                right: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-end;
+            }
+            .loader-content {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="background-container">
+        <div class="static-noise-texture"></div> 
+    </div>
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div id="boot-sequence"></div>
+        </div>
+    </div>
+    
+    <div id="theme-controls">
+        <button id="theme-toggle" class="theme-toggle-btn">
+            <i class="fas fa-sun"></i> Light Mode
+        </button>
+        <div id="color-swatches" style="display: flex; gap: 0.5rem;">
+            <div class="color-swatch" data-color-scheme="blue" style="background-color: #00ccff;" title="Neon Blue"></div>
+            <div class="color-swatch" data-color-scheme="red" style="background-color: #ff5555;" title="Neon Red"></div>
+            <div class="color-swatch" data-color-scheme="purple" style="background-color: #a000ff;" title="Neon Purple"></div>
+            <div class="color-swatch" data-color-scheme="yellow" style="background-color: #ffff00;" title="Neon Yellow"></div>
+        </div>
+    </div>
+
+    <div id="main-content" class="container">
+        <div class="hero">
+            <h1>Yonatan Ibragimov</h1>
+            <p><span id="hero-tagline">Software Developer • Full Stack • Creative Technologist</span></p>
+        </div>
+        <div class="terminal-window glass-card" id="main-content-top">
+            <div id="terminal"></div>
+            <div class="input-line">
+                <span class="prompt-text">user@portfolio:~$</span>
+                <input type="text" id="commandInput" autofocus autocomplete="off" spellcheck="false" placeholder="Type 'help' to get started..." />
+                <span class="cursor"></span>
+            </div>
+        </div>
+        <div class="section" id="about-section">
+            <h2 class="section-title">About Me & Experience</h2>
+            <div class="glass-card mb-6">
+                <h3 class="text-xl mb-2 text-white">Professional Summary</h3>
+                <p>I'm an <strong>innovative and results-oriented Software Developer</strong> with a strong foundation in full stack development, systems administration, and game design.</p>
+                <p class="exp-detail">I successfully developed and deployed a corporate website valued at over <strong>$10,000 CAD</strong> and engineered an internal booking platform that optimized workflow efficiency.</p>
+                <p class="exp-detail">I'm passionate about creative problem-solving, data-driven decision-making, and the seamless integration of technology into business operations.</p>
+            </div>
+            <h3 class="text-xl section-subtitle">Key Experience Highlights</h3>
+            <div class="projects-grid mt-4">
+                <div class="glass-card">
+                    <h4 class="text-lg text-white">Head of I.T. & Systems Admin. (Trust Therapy Inc.)</h4>
+                    <p class="text-sm italic text-secondary-main">May 2025 – Present</p>
+                    <ul class="list-disc ml-5 mt-2 text-sm">
+                        <li>Designed, developed, and launched the corporate website, integrating performance tracking and <strong>SEO analytics</strong>.</li>
+                        <li>Engineered a custom internal room booking system to automate scheduling, <strong>reducing conflicts by over 90%</strong>.</li>
+                        <li>Oversaw system security, backups, and cloud storage solutions.</li>
+                        <li>Managed full-stack web hosting and maintenance workflows (domain config, SSL deployment).</li>
+                    </ul>
+                </div>
+                <div class="glass-card">
+                    <h4 class="text-lg text-white">Co-Founder & Lead Developer (HUH?! Games Group)</h4>
+                    <p class="text-sm italic text-secondary-main">Oct 2023 – Present</p>
+                    <ul class="list-disc ml-5 mt-2 text-sm">
+                        <li>Co-founded an independent game studio focused on <strong>rapid prototyping in Unreal Engine 5</strong>.</li>
+                        <li>Led a team in designing core mechanics, UIs, and performance optimization.</li>
+                        <li>Implemented workflow improvements that <strong>reduced iteration cycles by 20%</strong>.</li>
+                        <li>Contributed to version control management using <strong>Git and GitHub</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+            <h3 class="text-xl section-subtitle mt-6">Education</h3>
+            <div class="glass-card mt-4">
+                <p class="font-semibold text-white">Mohawk College, Hamilton, ON</p>
+                <p class="text-md text-secondary-main">Computer Systems Technician – Software Support (Sept 2023 – Dec 2025)</p>
+                <p class="exp-detail mt-1"><strong>Dean’s Honours List recipient</strong></p>
+                <p class="exp-detail">Relevant Coursework: Object-Oriented Programming (Java, C#), Web Development, ASP .NET, Database Design, Networking, Systems Administration.</p>
+            </div>
+        </div>
+        <div class="section" id="projects-section">
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>How To C++</h3>
+                        <p>Comprehensive C++ tutorial and information page to teach the basics and intermediate applications of C++ code.</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project1">View Project →</a>
+                    </div>
+                </div>
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>Task Flow</h3>
+                        <p>Interactive task board for organizing your tasks and managing them.</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project2">View Project →</a>
+                    </div>
+                </div>
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>Project Gamma</h3>
+                        <p>Mobile-responsive e-commerce platform using PHP, MySQL, and modern CSS.</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project3">View Project →</a>
+                    </div>
+                </div>
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>Project Delta</h3>
+                        <p>Unreal Engine 5 game prototype with custom shaders and AI-driven NPCs.</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project4">View Project →</a>
+                    </div>
+                </div>
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>Project Delta</h3>
+                        <p>Clothing Drop Off Maps API Project</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project5">View Project →</a>
+                    </div>
+                </div>
+                <div class="project-card glass-card">
+                    <div class="project-content">
+                        <h3>Project Delta</h3>
+                        <p>A page displaying animations and transitions using on HTML, CSS, and JavaScript.</p>
+                        <a href="javascript:void(0)" class="project-link" data-project="project6">View Project →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section" id="skills-section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="glass-card">
+                <div class="skills-container">
+                    <span class="skill-category">Programming & Web Development</span>
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">PHP</span>
+                    <span class="skill-tag">JavaScript</span>
+                    <span class="skill-tag">Java</span>
+                    <span class="skill-tag">C#</span>
+                    <span class="skill-tag">HTML/CSS</span>
+                    <span class="skill-tag">SQL</span>
+                    <span class="skill-category">Frameworks & Tools</span>
+                    <span class="skill-tag">React</span>
+                    <span class="skill-tag">Node.js</span>
+                    <span class="skill-tag">Unreal Engine 5</span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">RESTful APIs</span>
+                    <span class="skill-tag">ASP .NET</span>
+                    <span class="skill-category">Systems & Operations</span>
+                    <span class="skill-tag">Linux</span>
+                    <span class="skill-tag">Windows Server</span>
+                    <span class="skill-tag">Network Configuration</span>
+                    <span class="skill-tag">Shell Scripting</span>
+                    <span class="skill-tag">Systems Administration</span>
+                    <span class="skill-tag">SEO Optimization</span>
+                    <span class="skill-tag">Google Analytics</span>
+                    <span class="skill-tag">Agile Development</span>
+                    <span class="skill-tag">UI/UX Design Principles</span>
+                </div>
+            </div>
+        </div>
+        <div class="section" id="themes-section">
+            <h2 class="section-title">Theme Settings</h2>
+            <div class="glass-card">
+                <h3 class="text-xl mb-2 text-white">Color Customization</h3>
+                <p class="text-secondary-main mb-4">Choose a different primary accent color for the CLI and overall website theme.</p>
+                <div id="settings-color-swatches" class="skills-container">
+                    <div class="color-swatch-setting" data-color-scheme="blue" style="background-color: #00ccff;" title="Neon Blue"></div>
+                    <div class="color-swatch-setting" data-color-scheme="red" style="background-color: #ff5555;" title="Neon Red"></div>
+                    <div class="color-swatch-setting" data-color-scheme="purple" style="background-color: #a000ff;" title="Neon Purple"></div>
+                    <div class="color-swatch-setting" data-color-scheme="yellow" style="background-color: #ffff00;" title="Neon Yellow"></div>
+                </div>
+                <h3 class="text-xl mt-6 mb-2 text-white">Light/Dark Mode</h3>
+                <p class="text-secondary-main mb-4">Toggle between the classic dark mode and a high-contrast light mode.</p>
+                <button id="settings-theme-toggle" class="theme-toggle-btn">
+                    <i class="fas fa-sun"></i> Toggle Theme
+                </button>
+            </div>
+        </div>
+        <div class="section" id="contact-section">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-grid">
+                <div class="contact-item glass-card">
+                    <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                    <h3>Phone</h3>
+                    <p>905-929-0354</p>
+                </div>
+                <div class="contact-item glass-card">
+                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                    <h3>Email</h3>
+                    <p>ibragimovyonatan@gmail.com</p>
+                </div>
+                <div class="contact-item glass-card">
+                    <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Location</h3>
+                    <p>Hamilton, ON, Canada</p>
+                </div>
+                <div class="contact-item glass-card">
+                    <div class="contact-icon"><i class="fab fa-linkedin"></i></div>
+                    <h3>LinkedIn</h3>
+                    <p>linkedin.com/in/yonatan-ibragimov</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-12 text-center text-sm text-secondary-main py-4">
+        &copy; 2025 Yonatan Ibragimov. All rights reserved. Built with passion and code.
+    </footer>
+    
+    <div id="radial-menu-btn">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="radial-menu" id="radial-menu">
+        <div class="radial-item" title="Home/Terminal" data-target="#main-content-top"><i class="fas fa-terminal"></i></div>
+        <div class="radial-item" title="About" data-target="#about-section"><i class="fas fa-user-tie"></i></div>
+        <div class="radial-item" title="Projects" data-target="#projects-section"><i class="fas fa-code-branch"></i></div>
+        <div class="radial-item" title="Skills" data-target="#skills-section"><i class="fas fa-laptop-code"></i></div>
+        <div class="radial-item" title="Theme" data-target="#themes-section"><i class="fas fa-palette"></i></div>
+        <div class="radial-item" title="Contact" data-target="#contact-section"><i class="fas fa-envelope"></i></div>
+    </div>
+
+    <div id="project-view">
+        <div id="project-header">
+            <span id="project-title"></span>
+            <button id="project-close-btn"><i class="fas fa-times"></i> CLOSE</button>
+        </div>
+        <iframe id="project-iframe" title="Project Preview"></iframe>
+    </div>
+    <script>
+        const USER_NAME = 'Yonatan Ibragimov';
+        const APP_PROMPT = 'user@portfolio:~$';
+        const APP_VERSION = 'v4.2-clean-boot-log';
+        const PROJECT_PATHS = {
+            'project1': 'projects/c++.html',
+            'project2': 'projects/checklist.html',
+            'project3': 'projects/weatherPage.html',
+            'project4': 'projects/hcjs.html',
+            'project5': 'projects/dropOff.html',
+            'project6': 'projects/mega-mations.html'
+        };
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('commandInput');
+        const projectView = document.getElementById('project-view');
+        const projectIframe = document.getElementById('project-iframe');
+        const projectTitle = document.getElementById('project-title');
+        const projectCloseBtn = document.getElementById('project-close-btn');
+        const projectLinks = document.querySelectorAll('.project-link');
+        const radialBtn = document.getElementById('radial-menu-btn');
+        const radialMenu = document.getElementById('radial-menu');
+        const radialItems = document.querySelectorAll('.radial-item');
+
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.getElementById('main-content');
+        const heroTagline = document.getElementById('hero-tagline');
+        // --- LOADER ELEMENTS ---
+        const bootSequence = document.getElementById('boot-sequence'); // New element
+
+        const html = document.documentElement;
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const settingsThemeToggleBtn = document.getElementById('settings-theme-toggle'); 
+        const colorSwatchesContainer = document.getElementById('color-swatches');
+        const settingsColorSwatchesContainer = document.getElementById('settings-color-swatches'); 
+        let currentTheme = html.getAttribute('data-theme') || 'dark';
+        let currentCliColor = localStorage.getItem('cliColor') || 'blue'; 
+        
+        const CLI_THEMES = {
+            'blue': {
+                '--accent': '#00ccff', '--error': '#ff5555', '--prompt': '#66ff66', '--command': '#66aaff',
+                '--accent-shadow': 'rgba(0, 204, 255, 0.5)', '--accent-tag-hover': 'rgba(0, 204, 255, 0.25)'
+            },
+            'red': {
+                '--accent': '#ff5555', '--error': '#00ccff', '--prompt': '#ffff66', '--command': '#ff9999',
+                '--accent-shadow': 'rgba(255, 85, 85, 0.5)', '--accent-tag-hover': 'rgba(255, 85, 85, 0.25)'
+            },
+            'purple': {
+                '--accent': '#a000ff', '--error': '#ff5555', '--prompt': '#00ffaa', '--command': '#cc88ff',
+                '--accent-shadow': 'rgba(160, 0, 255, 0.5)', '--accent-tag-hover': 'rgba(160, 0, 255, 0.25)'
+            },
+            'yellow': {
+                '--accent': '#ffff00', '--error': '#ff5555', '--prompt': '#00ffaa', '--command': '#ffdd55',
+                '--accent-shadow': 'rgba(255, 255, 0, 0.5)', '--accent-tag-hover': 'rgba(255, 255, 0, 0.25)'
+            }
+        };
+
+        let commandHistory = [];
+        let historyIndex = -1;
+        let menuOpen = false;
+
+        // --- Theme Functions ---
+        const applyCliTheme = (color) => {
+            const theme = CLI_THEMES[color];
+            if (theme) {
+                Object.entries(theme).forEach(([key, value]) => {
+                    html.style.setProperty(key, value);
+                });
+                html.setAttribute('data-cli-theme', color);
+                localStorage.setItem('cliColor', color);
+                currentCliColor = color;
+                updateSwatchActiveState();
+            }
+        };
+
+        const updateThemeToggle = () => {
+            let iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
+            let modeText = currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            
+            themeToggleBtn.innerHTML = `<i class="fas ${iconClass}"></i> ${modeText}`;
+            
+            if (settingsThemeToggleBtn) {
+                settingsThemeToggleBtn.innerHTML = `<i class="fas ${iconClass}"></i> Toggle Theme (${modeText})`;
+            }
+        };
+
+        const toggleTheme = () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeToggle();
+        };
+
+        const updateSwatchActiveState = () => {
+            document.querySelectorAll('.color-swatch, .color-swatch-setting').forEach(swatch => {
+                swatch.classList.toggle('active', swatch.getAttribute('data-color-scheme') === currentCliColor);
+            });
+        };
+
+        const initializeTheme = () => {
+            const storedTheme = localStorage.getItem('theme') || 'dark';
+            currentTheme = storedTheme;
+            html.setAttribute('data-theme', storedTheme);
+            updateThemeToggle();
+
+            const storedCliColor = localStorage.getItem('cliColor') || 'blue';
+            applyCliTheme(storedCliColor);
+        };
+
+        // --- Event Listeners for theme elements ---
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        if (settingsThemeToggleBtn) {
+            settingsThemeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        const handleSwatchClick = (e) => {
+            if (e.target.classList.contains('color-swatch') || e.target.classList.contains('color-swatch-setting')) {
+                const color = e.target.getAttribute('data-color-scheme');
+                applyCliTheme(color);
+            }
+        };
+
+        colorSwatchesContainer.addEventListener('click', handleSwatchClick);
+        if (settingsColorSwatchesContainer) {
+            settingsColorSwatchesContainer.addEventListener('click', handleSwatchClick);
+        }
+
+        // --- Terminal/Navigation Functions ---
+        const appendLine = (text, className = 'command-output') => {
+            const line = document.createElement('div');
+            line.className = className;
+            line.innerHTML = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        };
+        const appendCommand = (command) => {
+            const line = document.createElement('div');
+            line.className = 'input-line';
+            line.innerHTML = `<span class="prompt-text">${APP_PROMPT}</span><span class="command-command">${command}</span>`;
+            terminal.appendChild(line);
+        };
+        
+        const typeEffect = (element, text, delay = 70, finalCursor = true) => {
+            return new Promise(resolve => {
+                element.innerHTML = '';
+                element.classList.add('typing');
+                
+                let i = 0;
+                const typing = setInterval(() => {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                    } else {
+                        clearInterval(typing);
+                        element.classList.remove('typing');
+                        resolve();
+                    }
+                }, delay);
+            });
+        };
+
+        const welcomeMessage = () => {
+            appendLine(`<span class="command-accent">Initialization Complete. Welcome, ${USER_NAME}! (${APP_VERSION})</span>`);
+            appendLine("--------------------------------------------------");
+            appendLine("Type <span class='command-command'>help</span> for available commands.");
+            appendLine("Use <span class='command-command'>goto &lt;section&gt;</span> or the radial menu to navigate (e.g., goto projects).");
+            appendLine("Customize the look with <span class='command-command'>goto theme</span>.");
+        };
+
+        const toggleSection = (targetId) => {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            if (targetId === '#main-content-top') {
+                // Scroll to the top of the terminal area
+                document.querySelector('.terminal-window').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            const newSection = document.querySelector(targetId);
+            if (newSection) {
+                newSection.classList.add('active');
+                newSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        const displayProject = (project) => {
+            projectTitle.textContent = ''; 
+            const projectPath = PROJECT_PATHS[project.id] || 'about:blank';
+            projectIframe.src = projectPath;
+            projectView.classList.add('active');
+            // Blur main content when modal is open
+            mainContent.style.filter = 'blur(5px)';
+            terminal.style.pointerEvents = 'none';
+        };
+        const closeProject = () => {
+            projectView.classList.remove('active');
+            projectIframe.src = 'about:blank';
+            input.focus();
+            mainContent.style.filter = 'none';
+            terminal.style.pointerEvents = 'auto';
+        };
+        const handleHelp = () => {
+            const helpText = [
+                "Available Commands:",
+                "-------------------",
+                "<span class='command-command'>help</span>          : Show this help",
+                "<span class='command-command'>clear</span>         : Clear terminal",
+                "<span class='command-command'>projects</span>      : List project details",
+                "<span class='command-command'>view &lt;id&gt;</span>  : Open project (e.g., view project1)",
+                "<span class='command-command'>goto &lt;section&gt;</span>: Jump to section (about, projects, skills, theme, contact, home)"
+            ];
+            helpText.forEach(line => appendLine(line));
+        };
+        const handleProjects = () => {
+            appendLine("Projects (Use 'view <id>' to open):");
+            appendLine("-----------------------------------");
+            Object.entries(PROJECT_PATHS).forEach(([id, path]) => {
+                appendLine(`<span class="command-accent">${id}</span>`);
+            });
+        };
+        const handleView = (args) => {
+            const id = args[0]?.toLowerCase();
+            if (!id || !PROJECT_PATHS[id]) {
+                return appendLine(`Error: Project ID '${id || 'missing'}' not found. Type 'projects' to list IDs.`, 'command-error');
+            }
+            const project = { id: id, name: `Project: ${id}` };
+            appendLine(`Opening: ${project.name}...`, 'command-accent');
+            displayProject(project);
+        };
+        const handleGoto = (args) => {
+            const section = args[0]?.toLowerCase();
+            const sectionMap = {
+                'about': '#about-section',
+                'projects': '#projects-section',
+                'skills': '#skills-section',
+                'theme': '#themes-section', 
+                'contact': '#contact-section',
+                'home': '#main-content-top'
+            };
+            const targetId = sectionMap[section];
+            if (targetId) {
+                appendLine(`Jumping to section: ${section}...`, 'command-accent');
+                toggleSection(targetId);
+            } else {
+                appendLine(`Error: Unknown section '${section}'. Use: about, projects, skills, theme, contact, or home.`, 'command-error');
+            }
+        };
+        const executeCommand = (fullCommand) => {
+            const trimmed = fullCommand.trim();
+            if (!trimmed) return;
+            appendCommand(trimmed);
+            const parts = trimmed.split(/\s+/);
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+            switch (cmd) {
+                case 'help': handleHelp(); break;
+                case 'clear': terminal.innerHTML = ''; welcomeMessage(); break;
+                case 'projects': handleProjects(); break;
+                case 'view': handleView(args); break;
+                case 'goto': handleGoto(args); break;
+                default: appendLine(`Command not found: ${cmd}. Type 'help'.`, 'command-error');
+            }
+            if (trimmed !== commandHistory[0]) commandHistory.unshift(trimmed);
+            historyIndex = -1;
+        };
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand(input.value);
+                input.value = '';
+            } else if (e.key === 'ArrowUp' && commandHistory.length > 0) {
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    input.value = '';
+                }
+            }
+        });
+        projectCloseBtn.addEventListener('click', closeProject);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && projectView.classList.contains('active')) {
+                closeProject();
+            }
+        });
+        projectLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = link.dataset.project;
+                const project = { id: id, name: `Project: ${id}` };
+                displayProject(project);
+            });
+        });
+
+        // --- Radial Menu Events (RESTORED) ---
+        radialBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            radialMenu.classList.toggle('active', menuOpen);
+            radialBtn.classList.toggle('open', menuOpen);
+        });
+        radialItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.dataset.target;
+                if (targetId) {
+                    menuOpen = false;
+                    radialMenu.classList.remove('active');
+                    radialBtn.classList.remove('open');
+                    toggleSection(targetId);
+                }
+            });
+        });
+        
+        // --- NEW: Clean Boot Log Animation Sequence ---
+        const BOOT_MESSAGES = [
+            `Portfolio Boot Sequence ${APP_VERSION}`,
+            '---------------------------------------',
+            `User Profile: ${USER_NAME}`,
+            'System Diagnostic: Running...',
+            'Kernel Load: [==========] 100% [OK]',
+            'Network Interface: [Online]',
+            'Firewall Check: [Passed]',
+            'Asset Cache: [Loaded]',
+            'Authentication: [SUCCESS]',
+            'Launching Graphical Shell...'
+        ];
+
+        const startLoadingAnimation = () => {
+            let totalDelay = 500;
+            
+            // Function to chain typing of each boot message
+            const appendBootLine = (text, delayTime) => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        const line = document.createElement('div');
+                        line.className = 'boot-line';
+                        bootSequence.appendChild(line);
+                        // Use a fast typing speed for the boot log
+                        typeEffect(line, text, 20, false) 
+                            .then(resolve);
+                    }, delayTime);
+                });
+            };
+
+            // Chain the messages
+            let promiseChain = Promise.resolve();
+
+            BOOT_MESSAGES.forEach((msg) => {
+                // Determine duration for current message (20ms per character) + 100ms pause
+                const duration = msg.length * 20 + 100;
+
+                promiseChain = promiseChain.then(() => appendBootLine(msg, 0))
+                                           .then(() => new Promise(resolve => setTimeout(resolve, 100))); 
+                totalDelay += duration;
+            });
+
+            // Final Fade-out
+            promiseChain.then(() => {
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        mainContent.classList.add('loaded');
+                        welcomeMessage();
+                        input.focus();
+                    }, 800); // Wait for fade-out transition
+                }, 1000); // 1s pause after the last line is typed
+            });
+        };
+        // --- END: Clean Boot Log Animation Sequence ---
+
+        window.addEventListener('load', () => {
+            initializeTheme();
+            // Start the typing animation for the main hero tagline immediately
+            // This is non-blocking so it runs while the loader is active
+            typeEffect(heroTagline, heroTagline.textContent, 70); 
+            
+            startLoadingAnimation(); 
+        });
+    </script>
+</body>
+</html>          

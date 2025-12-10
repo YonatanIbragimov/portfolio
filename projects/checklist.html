@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Enhanced Checklist</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --burgundy: #8B0000;
+            --dark-burgundy: #660000;
+            --light-burgundy: #A52A2A;
+            --glass: rgba(139, 0, 0, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-light: #f8f8f8;
+            --text-muted: #ccc;
+            --shadow: 0 8px 32px rgba(139, 0, 0, 0.37);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c0d0d, #1a0606);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8c8c, #ff5555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            color: #ff9d9d;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .category-section {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .category-section.drag-over {
+            background: rgba(165, 42, 42, 0.35);
+            border: 2px dashed #ff5555;
+        }
+
+        .category-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(139, 0, 0, 0.45);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ff9d9d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-count {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .add-task-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .add-task-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .task-list {
+            list-style: none;
+            overflow-y: auto;
+            padding-right: 5px;
+            flex: 1;
+            margin-bottom: 20px;
+            min-height: 100px;
+        }
+
+        .task-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .task-list::-webkit-scrollbar-thumb {
+            background: var(--light-burgundy);
+            border-radius: 10px;
+        }
+
+        .task-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .task-item:active {
+            cursor: grabbing;
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-checkbox {
+            margin-right: 14px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: var(--light-burgundy);
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1.05rem;
+            word-break: break-word;
+        }
+
+        .completed .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .category-tag {
+            background: rgba(255, 157, 157, 0.2);
+            color: #ff9d9d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0 10px;
+            white-space: nowrap;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action-btn {
+            background: none;
+            border: none;
+            color: #ff9d9d;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+        }
+
+        .task-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff5555;
+        }
+
+        .category-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .category-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: #ff9d9d;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            flex: 0 0 auto;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-btn.active {
+            background: var(--light-burgundy);
+            color: white;
+        }
+
+        .category-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .add-task-form {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .add-task-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .add-task-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .add-task-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .submit-btn {
+            background: var(--light-burgundy);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .submit-btn:hover {
+            background: var(--burgundy);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-style: italic;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .add-task-form {
+                flex-direction: column;
+            }
+            
+            .submit-btn {
+                padding: 12px;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TaskFlow</h1>
+            <p class="subtitle">Drag tasks between categories • Filter by category • Mark as complete</p>
+        </header>
+        
+        <div class="app-container">
+            <!-- Completed Tasks -->
+            <div class="category-section" id="completedSection" data-category="completed">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-check-circle"></i> Completed
+                        <span class="section-count" id="completedCount">0</span>
+                    </h2>
+                    <button class="add-task-btn" id="addCompletedBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="task-list" id="completedList"></ul>
+                <div class="category-selector" id="completedCategorySelector"></div>
+                <div class="add-task-form" id="completedForm" style="display: none;">
+                    <input type="text" class="add-task-input" placeholder="Add a completed task..." id="completedInput">
+                    <button class="submit-btn" id="completedSubmit">Add</button>
+                </div>
+                <div class="instructions">
+                    <p><i class="fas fa-info-circle"></i> Drag tasks here to mark as complete</p>
+                </div>
+            </div>
+            
+            <!-- To-Do Tasks -->
+            <div class="category-section" id="todoSection" data-category="todo">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-tasks"></i> To-Do
+                        <span class="section-count" id="todoCount">0</span>
+                    </h2>
+                    <button class="add-task-btn" id="addToDoBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="task-list" id="todoList"></ul>
+                <div class="category-selector" id="todoCategorySelector"></div>
+                <div class="add-task-form" id="todoForm" style="display: none;">
+                    <input type="text" class="add-task-input" placeholder="Add a new task..." id="todoInput">
+                    <button class="submit-btn" id="todoSubmit">Add</button>
+                </div>
+                <div class="instructions">
+                    <p><i class="fas fa-info-circle"></i> Main tasks that need to be completed</p>
+                </div>
+            </div>
+            
+            <!-- Side Tasks -->
+            <div class="category-section" id="sideSection" data-category="side">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-lightbulb"></i> Side Tasks
+                        <span class="section-count" id="sideCount">0</span>
+                    </h2>
+                    <button class="add-task-btn" id="addSideBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="task-list" id="sideList"></ul>
+                <div class="category-selector" id="sideCategorySelector"></div>
+                <div class="add-task-form" id="sideForm" style="display: none;">
+                    <input type="text" class="add-task-input" placeholder="Add a side task..." id="sideInput">
+                    <button class="submit-btn" id="sideSubmit">Add</button>
+                </div>
+                <div class="instructions">
+                    <p><i class="fas fa-info-circle"></i> Secondary tasks that can wait</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main categories for tasks
+        const mainCategories = ['Work', 'Personal', 'Urgent', 'Research', 'Ideas', 'Project Alpha', 'Client Work'];
+        let currentCategory = 'Work';
+        let tasks = {
+            completed: [],
+            todo: [],
+            side: []
+        };
+        
+        // DOM Elements
+        const sections = {
+            completed: document.getElementById('completedSection'),
+            todo: document.getElementById('todoSection'),
+            side: document.getElementById('sideSection')
+        };
+        
+        const lists = {
+            completed: document.getElementById('completedList'),
+            todo: document.getElementById('todoList'),
+            side: document.getElementById('sideList')
+        };
+        
+        const counts = {
+            completed: document.getElementById('completedCount'),
+            todo: document.getElementById('todoCount'),
+            side: document.getElementById('sideCount')
+        };
+        
+        const forms = {
+            completed: {
+                form: document.getElementById('completedForm'),
+                input: document.getElementById('completedInput'),
+                btn: document.getElementById('addCompletedBtn'),
+                submit: document.getElementById('completedSubmit')
+            },
+            todo: {
+                form: document.getElementById('todoForm'),
+                input: document.getElementById('todoInput'),
+                btn: document.getElementById('addToDoBtn'),
+                submit: document.getElementById('todoSubmit')
+            },
+            side: {
+                form: document.getElementById('sideForm'),
+                input: document.getElementById('sideInput'),
+                btn: document.getElementById('addSideBtn'),
+                submit: document.getElementById('sideSubmit')
+            }
+        };
+        
+        // Initialize the app
+        function initApp() {
+            createCategorySelectors();
+            setupEventListeners();
+            renderTasks();
+        }
+        
+        // Create category selectors for all sections
+        function createCategorySelectors() {
+            const selectors = [
+                document.getElementById('completedCategorySelector'),
+                document.getElementById('todoCategorySelector'),
+                document.getElementById('sideCategorySelector')
+            ];
+            
+            selectors.forEach(selector => {
+                selector.innerHTML = '';
+                mainCategories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = cat;
+                    if (cat === currentCategory) btn.classList.add('active');
+                    btn.addEventListener('click', (e) => {
+                        // Update active state in all selectors
+                        document.querySelectorAll('.category-btn').forEach(b => {
+                            b.classList.toggle('active', b.textContent === cat);
+                        });
+                        currentCategory = cat;
+                        filterTasks();
+                    });
+                    selector.appendChild(btn);
+                });
+            });
+        }
+        
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Add task buttons
+            Object.entries(forms).forEach(([section, form]) => {
+                form.btn.addEventListener('click', () => {
+                    form.form.style.display = form.form.style.display === 'none' ? 'flex' : 'none';
+                    if (form.form.style.display === 'flex') {
+                        form.input.focus();
+                    }
+                });
+                
+                form.submit.addEventListener('click', () => addTask(section));
+                form.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addTask(section);
+                });
+            });
+            
+            // Drag and drop setup
+            setupDragAndDrop();
+        }
+        
+        // Set up drag and drop functionality
+        function setupDragAndDrop() {
+            // Make tasks draggable
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.draggable = true;
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+            
+            // Set up drop zones
+            Object.values(sections).forEach(section => {
+                section.addEventListener('dragover', handleDragOver);
+                section.addEventListener('dragenter', handleDragEnter);
+                section.addEventListener('dragleave', handleDragLeave);
+                section.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        // Drag and drop handlers
+        let draggedItem = null;
+        
+        function handleDragStart(e) {
+            draggedItem = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedItem = null;
+            
+            // Update task counts after drop
+            updateTaskCounts();
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+        
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedItem) {
+                const targetSection = this.dataset.category;
+                const sourceSection = draggedItem.closest('.category-section').dataset.category;
+                
+                // Only move if sections are different
+                if (sourceSection !== targetSection) {
+                    // Remove from source list
+                    draggedItem.remove();
+                    
+                    // Add to target list
+                    const targetList = lists[targetSection];
+                    targetList.appendChild(draggedItem);
+                    
+                    // Update task data
+                    const taskId = draggedItem.dataset.taskId;
+                    const task = findTaskById(taskId);
+                    
+                    if (task) {
+                        // Remove from old section
+                        tasks[sourceSection] = tasks[sourceSection].filter(t => t.id !== taskId);
+                        
+                        // Add to new section
+                        task.section = targetSection;
+                        tasks[targetSection].push(task);
+                        
+                        // If moving to completed, mark as complete
+                        if (targetSection === 'completed') {
+                            task.completed = true;
+                            draggedItem.classList.add('completed');
+                            const checkbox = draggedItem.querySelector('.task-checkbox');
+                            if (checkbox) checkbox.checked = true;
+                        } 
+                        // If moving from completed, mark as incomplete
+                        else if (sourceSection === 'completed') {
+                            task.completed = false;
+                            draggedItem.classList.remove('completed');
+                            const checkbox = draggedItem.querySelector('.task-checkbox');
+                            if (checkbox) checkbox.checked = false;
+                        }
+                        
+                        // Re-filter tasks
+                        filterTasks();
+                    }
+                }
+            }
+        }
+        
+        // Find task by ID
+        function findTaskById(id) {
+            for (const section in tasks) {
+                const task = tasks[section].find(t => t.id === id);
+                if (task) return task;
+            }
+            return null;
+        }
+        
+        // Add a new task
+        function addTask(section) {
+            const form = forms[section];
+            const taskText = form.input.value.trim();
+            
+            if (taskText) {
+                const newTask = {
+                    id: Date.now().toString(),
+                    text: taskText,
+                    category: currentCategory,
+                    section: section,
+                    completed: section === 'completed'
+                };
+                
+                tasks[section].push(newTask);
+                renderTasks();
+                form.input.value = '';
+                form.form.style.display = 'none';
+            }
+        }
+        
+        // Render all tasks
+        function renderTasks() {
+            // Clear all lists
+            Object.values(lists).forEach(list => {
+                list.innerHTML = '';
+            });
+            
+            // Filter and render tasks for each section
+            Object.entries(tasks).forEach(([section, taskList]) => {
+                const filteredTasks = taskList.filter(task => 
+                    currentCategory === 'All' || task.category === currentCategory
+                );
+                
+                if (filteredTasks.length === 0) {
+                    const emptyState = document.createElement('li');
+                    emptyState.className = 'empty-state';
+                    
+                    const icons = {
+                        completed: 'fa-check-circle',
+                        todo: 'fa-tasks',
+                        side: 'fa-lightbulb'
+                    };
+                    
+                    emptyState.innerHTML = `
+                        <i class="fas ${icons[section]}"></i>
+                        <p>No ${section === 'completed' ? 'completed' : section === 'todo' ? 'pending' : 'side'} tasks</p>
+                    `;
+                    lists[section].appendChild(emptyState);
+                } else {
+                    filteredTasks.forEach(task => {
+                        const li = createTaskElement(task);
+                        lists[section].appendChild(li);
+                    });
+                }
+            });
+            
+            // Re-setup drag and drop after rendering
+            setupDragAndDrop();
+            updateTaskCounts();
+        }
+        
+        // Create a task element
+        function createTaskElement(task) {
+            const li = document.createElement('li');
+            li.className = `task-item ${task.completed ? 'completed' : ''}`;
+            li.dataset.taskId = task.id;
+            
+            li.innerHTML = `
+                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                <span class="task-text">${task.text}</span>
+                <span class="category-tag">${task.category}</span>
+                <div class="task-actions">
+                    <button class="task-action-btn delete-btn" title="Delete task">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add animation class
+            li.classList.add('pulse');
+            
+            // Add event listeners
+            const checkbox = li.querySelector('.task-checkbox');
+            const deleteBtn = li.querySelector('.delete-btn');
+            
+            // Handle checkbox change
+            checkbox.addEventListener('change', () => {
+                task.completed = checkbox.checked;
+                if (checkbox.checked) {
+                    // Move to completed section
+                    tasks[task.section] = tasks[task.section].filter(t => t.id !== task.id);
+                    task.section = 'completed';
+                    tasks.completed.push(task);
+                    renderTasks();
+                } else {
+                    // Move back to todo section
+                    tasks[task.section] = tasks[task.section].filter(t => t.id !== task.id);
+                    task.section = 'todo';
+                    tasks.todo.push(task);
+                    renderTasks();
+                }
+            });
+            
+            // Handle delete
+            deleteBtn.addEventListener('click', () => {
+                tasks[task.section] = tasks[task.section].filter(t => t.id !== task.id);
+                renderTasks();
+            });
+            
+            return li;
+        }
+        
+        // Update task counts
+        function updateTaskCounts() {
+            Object.entries(tasks).forEach(([section, taskList]) => {
+                const filteredCount = taskList.filter(task => 
+                    currentCategory === 'All' || task.category === currentCategory
+                ).length;
+                counts[section].textContent = filteredCount;
+            });
+        }
+        
+        // Filter tasks by category
+        function filterTasks() {
+            renderTasks();
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

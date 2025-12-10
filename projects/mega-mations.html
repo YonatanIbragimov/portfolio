@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GIGA Animation Showroom — Enhanced</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --panel: #121a28;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --accent3: #ec4899;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.08);
+    --soft: #1a2435;
+    --muted: #a0aec0;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+  }
+  
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #0a0e17, #0f172a);
+    color: #e2e8f0;
+    font-family: 'Inter', ui-sans-serif, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 20%);
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    position: relative;
+  }
+  
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    box-shadow: 0 0 15px var(--accent);
+  }
+  
+  h1 {
+    font-size: 3.5rem;
+    margin: 0 0 1rem;
+    background: linear-gradient(90deg, #fff, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  
+  p.lead {
+    color: var(--muted);
+    margin: 0 auto 2rem;
+    max-width: 700px;
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  /* Grid System */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  /* Section Styling */
+  section {
+    background: var(--panel);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  section:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .section-header {
+    padding: 1.5rem 1.5rem 0;
+  }
+  
+  .section-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .section-content {
+    padding: 0 1.5rem 1.5rem;
+  }
+  
+  /* 3D Cube */
+  .cube-wrap {
+    perspective: 1200px;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem auto;
+  }
+  
+  .cube {
+    width: 160px;
+    height: 160px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(30deg);
+    transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .cube:hover {
+    transform: rotateX(-15deg) rotateY(390deg) translateZ(30px);
+  }
+  
+  .cube .face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      inset 0 0 20px rgba(255, 255, 255, 0.1),
+      0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  
+  .cube .f1 { transform: rotateY(0deg) translateZ(80px); background: linear-gradient(135deg, #e0e7ff, #e0e7ff); }
+  .cube .f2 { transform: rotateY(90deg) translateZ(80px); background: linear-gradient(135deg, #ddd6fe, #ddd6fe); }
+  .cube .f3 { transform: rotateY(180deg) translateZ(80px); background: linear-gradient(135deg, #f3e8ff, #f3e8ff); }
+  .cube .f4 { transform: rotateY(-90deg) translateZ(80px); background: linear-gradient(135deg, #ffe4e6, #ffe4e6); }
+  .cube .f5 { transform: rotateX(90deg) translateZ(80px); background: linear-gradient(135deg, #dbf4ff, #dbf4ff); }
+  .cube .f6 { transform: rotateX(-90deg) translateZ(80px); background: linear-gradient(135deg, #e0f2fe, #e0f2fe); }
+  
+  /* Card Deck */
+  .deck {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    width: 160px;
+    height: 220px;
+    perspective: 1000px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .card .inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .card.is-flipped .inner {
+    transform: rotateY(180deg);
+  }
+  
+  .card .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    font-size: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .card .front {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #f1f5f9;
+  }
+  
+  .card .back {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    transform: rotateY(180deg);
+  }
+  
+  /* Carousel */
+  .carousel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1.5rem 0;
+  }
+  
+  .carousel {
+    width: 100%;
+    max-width: 500px;
+    height: 250px;
+    position: relative;
+    perspective: 1800px;
+    margin: 1rem 0;
+  }
+  
+  .carousel-track {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .carousel-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    width: 180px;
+    height: 160px;
+    margin: -80px 0 0 -90px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+    font-size: 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .carousel-item .label {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  /* positions */
+  .i0 { transform: translateX(-280px) translateZ(-200px) rotateY(30deg) scale(0.7); }
+  .i1 { transform: translateX(-140px) translateZ(-100px) rotateY(15deg) scale(0.85); }
+  .i2 { transform: translateX(0) translateZ(0) rotateY(0deg) scale(1); }
+  .i3 { transform: translateX(140px) translateZ(-100px) rotateY(-15deg) scale(0.85); }
+  .i4 { transform: translateX(280px) translateZ(-200px) rotateY(-30deg) scale(0.7); }
+  
+  .carousel-controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+  
+  .btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+  }
+  
+  /* Parallax */
+  .parallax {
+    height: 320px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #0c1a2d, #071018);
+    margin: 1.5rem 0;
+  }
+  
+  .parallax .layer {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  
+  .parallax .bg {
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="%236366f1" stop-opacity="0.1"/><stop offset="1" stop-color="%238b5cf6" stop-opacity="0.05"/></linearGradient></defs><rect width="100%" height="100%" fill="url(%23g)"/></svg>');
+    background-size: cover;
+  }
+  
+  .parallax .mid {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+    mix-blend-mode: screen;
+  }
+  
+  .parallax .fg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 800;
+    z-index: 3;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .parallax .fg .subtitle {
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin-top: 1rem;
+  }
+  
+  /* Blob & Particles */
+  .animation-pair {
+    display: flex;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .animation-item {
+    flex: 1;
+    min-width: 280px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  
+  .blob-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  
+  svg.blob {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  
+  canvas.particles {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    background: var(--panel);
+  }
+  
+  /* Glass UI */
+  .glass-container {
+    display: flex;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+  
+  .glass-panel {
+    flex: 1;
+    min-width: 280px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+  
+  .neum-panel {
+    flex: 1;
+    min-width: 280px;
+    background: linear-gradient(145deg, #15202d, #0f1725);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 
+      8px 8px 16px rgba(0, 0, 0, 0.6),
+      -6px -6px 12px rgba(255, 255, 255, 0.02);
+  }
+  
+  .status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 0.5rem;
+  }
+  
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .pill:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--accent);
+  }
+  
+  .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .pill.on .dot {
+    transform: translateX(20px);
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .btn.neum {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #1e293b, #1a2435);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      inset 3px 3px 6px rgba(0, 0, 0, 0.7),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .btn.neum:hover {
+    background: linear-gradient(180deg, #222d40, #1c2538);
+  }
+  
+  .btn.neum:active {
+    transform: translateY(2px);
+    box-shadow: 
+      inset 2px 2px 4px rgba(0, 0, 0, 0.9),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.02);
+  }
+  
+  /* Waves */
+  .wave-container {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #0c1a2d, #071018);
+    margin: 1.5rem 0;
+  }
+  
+  .wave-content {
+    position: absolute;
+    left: 20px;
+    top: 18px;
+    color: #e0e7ff;
+    font-weight: 800;
+    z-index: 1;
+  }
+  
+  .wave-svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 200%;
+    height: 280px;
+    transform: translateX(-20%);
+    opacity: 0.95;
+  }
+  
+  .wave-svg .wave {
+    animation: waveMove 12s linear infinite;
+  }
+  
+  .wave-svg .wave:nth-child(2) {
+    animation-duration: 16s;
+    opacity: 0.6;
+    transform-origin: 50% 50%;
+  }
+  
+  .wave-svg .wave:nth-child(3) {
+    animation-duration: 20s;
+    opacity: 0.4;
+  }
+  
+  @keyframes waveMove {
+    0% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(-6%) translateY(-8px); }
+    100% { transform: translateX(0) translateY(0); }
+  }
+  
+  /* Charts */
+  .chart-container {
+    display: flex;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+  
+  .chart-item {
+    flex: 1;
+    min-width: 280px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  
+  canvas.chart {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  
+  /* Footer */
+  footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header {
+      padding: 1.5rem 0;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+    }
+    
+    .animation-pair,
+    .glass-container,
+    .chart-container {
+      flex-direction: column;
+    }
+    
+    .carousel {
+      height: 200px;
+    }
+    
+    .i0 { transform: translateX(-200px) translateZ(-150px) rotateY(25deg) scale(0.7); }
+    .i1 { transform: translateX(-100px) translateZ(-75px) rotateY(12deg) scale(0.85); }
+    .i2 { transform: translateX(0) translateZ(0) rotateY(0deg) scale(1); }
+    .i3 { transform: translateX(100px) translateZ(-75px) rotateY(-12deg) scale(0.85); }
+    .i4 { transform: translateX(200px) translateZ(-150px) rotateY(-25deg) scale(0.7); }
+  }
+  
+  @media (max-width: 480px) {
+    .wrap {
+      padding: 1rem;
+    }
+    
+    .section-content,
+    .section-header {
+      padding: 1rem 1rem 0;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>GIGA Animation Showroom</h1>
+      <p class="lead">Advanced CSS + JS animation demos: 3D transformations, interactive elements, dynamic visualizations, and modern UI patterns — all in a single HTML file.</p>
+    </div>
+
+    <!-- 3D Cube -->
+    <div class="grid">
+      <section>
+        <div class="section-header">
+          <h2>Interactive 3D Cube</h2>
+        </div>
+        <div class="section-content">
+          <div class="cube-wrap">
+            <div class="cube" aria-hidden="true">
+              <div class="face f1">FRONT</div>
+              <div class="face f2">RIGHT</div>
+              <div class="face f3">BACK</div>
+              <div class="face f4">LEFT</div>
+              <div class="face f5">TOP</div>
+              <div class="face f6">BOTTOM</div>
+            </div>
+          </div>
+          <p class="lead" style="margin-top: 1rem;">Hover to spin this hardware-accelerated 3D cube. Built with pure CSS transforms and preserve-3d.</p>
+        </div>
+      </section>
+      
+      <!-- Card Deck -->
+      <section>
+        <div class="section-header">
+          <h2>3D Card Flip Deck</h2>
+        </div>
+        <div class="section-content">
+          <div class="deck" id="deck">
+            <div class="card" tabindex="0">
+              <div class="inner">
+                <div class="face front">
+                  <div>CARD</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">CLICK TO FLIP</div>
+                </div>
+                <div class="face back">
+                  <div style="font-size: 1.2rem;">INFO</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">BACK SIDE</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" tabindex="0">
+              <div class="inner">
+                <div class="face front">
+                  <div>CARD</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">CLICK TO FLIP</div>
+                </div>
+                <div class="face back" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                  <div style="font-size: 1.2rem;">INFO</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">BACK SIDE</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" tabindex="0">
+              <div class="inner">
+                <div class="face front">
+                  <div>CARD</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">CLICK TO FLIP</div>
+                </div>
+                <div class="face back" style="background: linear-gradient(135deg, #34d399, #6ee7b7);">
+                  <div style="font-size: 1.2rem;">INFO</div>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem;">BACK SIDE</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="lead" style="margin-top: 1rem; text-align: center;">Click any card to flip it. Great for product previews or interactive tutorials.</p>
+        </div>
+      </section>
+    </div>
+    
+    <!-- Carousel -->
+    <section>
+      <div class="section-header">
+        <h2>3D Carousel</h2>
+      </div>
+      <div class="section-content">
+        <div class="carousel-container">
+          <div class="carousel" id="carousel">
+            <div class="carousel-track" id="track">
+              <div class="carousel-item i0" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                <div>A</div>
+                <div class="label">PRODUCT</div>
+              </div>
+              <div class="carousel-item i1" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                <div>B</div>
+                <div class="label">PROJECT</div>
+              </div>
+              <div class="carousel-item i2" style="background: linear-gradient(135deg, #34d399, #6ee7b7);">
+                <div>C</div>
+                <div class="label">FEATURE</div>
+              </div>
+              <div class="carousel-item i3" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                <div>D</div>
+                <div class="label">SERVICE</div>
+              </div>
+              <div class="carousel-item i4" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">
+                <div>E</div>
+                <div class="label">SOLUTION</div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-controls">
+            <button class="btn" id="prev">◀ PREVIOUS</button>
+            <button class="btn" id="next">NEXT ▶</button>
+          </div>
+          <p class="lead" style="margin-top: 1.5rem; text-align: center;">Navigate through items with smooth 3D transitions. Built with CSS transforms and JavaScript control.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Parallax -->
+    <section style="margin-top: 1.5rem;">
+      <div class="section-header">
+        <h2>Deep Space Parallax</h2>
+      </div>
+      <div class="section-content">
+        <div class="parallax panel" id="parallax">
+          <div class="layer bg" data-speed="0.1"></div>
+          <div class="layer mid" data-speed="0.2"></div>
+          <div class="layer fg" data-speed="0.3">
+            <div>
+              <div>Depth & Parallax</div>
+              <div class="subtitle">Scroll the page to experience the illusion of depth</div>
+            </div>
+          </div>
+        </div>
+        <p class="lead" style="margin-top: 1rem; text-align: center;">Multi-layered parallax effect creates a sense of depth as you scroll. Each layer moves at a different speed.</p>
+      </div>
+    </section>
+    
+    <!-- Blob & Particles -->
+    <div class="animation-pair">
+      <div class="animation-item">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Morphing SVG Blob</h3>
+        <div class="blob-container">
+          <svg class="blob" viewBox="0 0 600 400" id="blobSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                <stop class="g-anim" offset="0%" stop-color="#6366f1"/>
+                <stop class="g-anim" offset="50%" stop-color="#8b5cf6"/>
+                <stop class="g-anim" offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+              <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+                <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo"/>
+              </filter>
+            </defs>
+            <g filter="url(#goo)">
+              <path id="blobPath" fill="url(#g1)"></path>
+            </g>
+          </svg>
+        </div>
+        <p class="lead" style="margin-top: 0.5rem;">Organic, fluid morphing using SVG path animations with a gooey effect.</p>
+      </div>
+      
+      <div class="animation-item">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Interactive Particles</h3>
+        <canvas id="particleCanvas" width="400" height="200" class="particles"></canvas>
+        <p class="lead" style="margin-top: 0.5rem;">Click to toggle between attract/repel modes. Move your cursor to interact!</p>
+      </div>
+    </div>
+    
+    <!-- Glass UI -->
+    <div class="glass-container">
+      <div class="glass-panel">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Glassmorphism Controls</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; font-size: 1.1rem;">Player Controls</div>
+            <div style="display: flex; align-items: center; margin-top: 0.5rem;">
+              <span class="status-indicator"></span>
+              <span style="color: var(--muted);">Online</span>
+            </div>
+          </div>
+          <div class="pill" id="togglePill">
+            <div class="dot" id="pillDot"></div>
+            <div style="font-size: 0.9rem; color: var(--muted);">Toggle</div>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <div style="color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Now playing</div>
+          <div style="display: flex; gap: 0.75rem;">
+            <div class="glass" style="padding: 0.75rem; border-radius: 10px; flex: 1; text-align: center;">Track A</div>
+            <div class="glass" style="padding: 0.75rem; border-radius: 10px; flex: 1; text-align: center;">Track B</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="neum-panel">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Neumorphic Buttons</h3>
+        <div class="btn-group">
+          <div class="btn neum">PLAY</div>
+          <div class="btn neum">PAUSE</div>
+          <div class="btn neum">NEXT</div>
+        </div>
+        <p class="lead" style="margin-top: 1rem;">Soft, tactile buttons with pressed states. Perfect for control panels and dashboards.</p>
+      </div>
+    </div>
+    
+    <!-- Waves -->
+    <section style="margin-top: 1.5rem;">
+      <div class="section-header">
+        <h2>Oceanic Wave Background</h2>
+      </div>
+      <div class="section-content">
+        <div class="wave-container">
+          <div class="wave-content">Endless Ocean Waves</div>
+          <svg class="wave-svg" viewBox="0 0 1200 260" preserveAspectRatio="none">
+            <path class="wave" d="M0,160 C200,100 400,220 600,160 C800,100 1000,220 1200,160 L1200,260 L0,260 Z" fill="#0c1a2d" opacity="0.9"></path>
+            <path class="wave" d="M0,170 C200,120 400,240 600,170 C800,100 1000,240 1200,170 L1200,260 L0,260 Z" fill="#0a1726" opacity="0.7"></path>
+            <path class="wave" d="M0,180 C200,140 400,260 600,180 C800,100 1000,260 1200,180 L1200,260 L0,260 Z" fill="#071018" opacity="0.5"></path>
+          </svg>
+        </div>
+        <p class="lead" style="margin-top: 1rem; text-align: center;">Smooth, continuous wave animation created with SVG paths and CSS keyframes.</p>
+      </div>
+    </section>
+    
+    <!-- Charts -->
+    <div class="chart-container">
+      <div class="chart-item">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Animated Bar Chart</h3>
+        <canvas id="barChart" width="400" height="200" class="chart"></canvas>
+        <p class="lead" style="margin-top: 0.5rem;">Bars animate in with smooth easing and gradient fills.</p>
+      </div>
+      
+      <div class="chart-item">
+        <h3 style="margin: 0 0 1rem; font-size: 1.5rem;">Animated Line Chart</h3>
+        <canvas id="lineChart" width="400" height="200" class="chart"></canvas>
+        <p class="lead" style="margin-top: 0.5rem;">Line draws with easing and animated data points.</p>
+      </div>
+    </div>
+    
+    <footer>
+      <p>GIGA animation demo — built with HTML, CSS, and vanilla JavaScript. No external libraries.</p>
+      <p style="margin-top: 0.5rem;">All animations respect prefers-reduced-motion settings.</p>
+    </footer>
+  </div>
+
+<script>
+/* ================== Utilities ================== */
+const qs = s => document.querySelector(s);
+const qsa = s => Array.from(document.querySelectorAll(s));
+
+/* ================== Card deck flip ================== */
+qsa('.card').forEach(card => {
+  card.addEventListener('click', () => card.classList.toggle('is-flipped'));
+  card.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ') card.classList.toggle('is-flipped');
+  });
+});
+
+/* ================== Carousel control ================== */
+(() => {
+  const track = qs('#track');
+  const items = qsa('.carousel-item');
+  let centerIndex = 2;
+  
+  const rotateTo = (index) => {
+    const order = [-2,-1,0,1,2].map(offset => ((index + offset) % items.length + items.length) % items.length);
+    items.forEach((it, i) => {
+      it.className = 'carousel-item';
+      const pos = order.indexOf(i);
+      if(pos === 0) it.classList.add('i0');
+      if(pos === 1) it.classList.add('i1');
+      if(pos === 2) it.classList.add('i2');
+      if(pos === 3) it.classList.add('i3');
+      if(pos === 4) it.classList.add('i4');
+    });
+  };
+  
+  qs('#prev').onclick = () => { 
+    centerIndex = (centerIndex - 1 + items.length) % items.length; 
+    rotateTo(centerIndex);
+  };
+  qs('#next').onclick = () => { 
+    centerIndex = (centerIndex + 1) % items.length; 
+    rotateTo(centerIndex);
+  };
+  rotateTo(centerIndex);
+})();
+
+/* ================== Parallax scroll ================== */
+(() => {
+  const wrap = qs('#parallax');
+  const layers = Array.from(wrap.querySelectorAll('.layer'));
+  const onScroll = () => {
+    const rect = wrap.getBoundingClientRect();
+    const mid = window.innerHeight / 2;
+    const distance = (rect.top - mid);
+    layers.forEach(layer => {
+      const speed = parseFloat(layer.dataset.speed || 0.1);
+      const y = -distance * speed;
+      layer.style.transform = `translate3d(0, ${y}px, 0)`;
+    });
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+/* ================== Blob morphing (SVG) ================== */
+(() => {
+  const pathEl = qs('#blobPath');
+  const W = 600, H = 400;
+  const baseRadius = 140;
+  const points = 8;
+  
+  const makePath = (radii) => {
+    let d = '';
+    for(let i=0;i<points;i++){
+      const theta = (Math.PI * 2 * i) / points;
+      const x = W/2 + Math.cos(theta) * radii[i];
+      const y = H/2 + Math.sin(theta) * radii[i];
+      d += (i===0?`M ${x} ${y}`:` L ${x} ${y}`);
+    }
+    d += ' Z';
+    return d;
+  };
+  
+  const randomRadii = () => {
+    const arr=[];
+    for(let i=0;i<points;i++) arr.push(baseRadius + (Math.random()*60 - 30));
+    return arr;
+  };
+  
+  const lerpArr = (a,b,t) => a.map((v,i)=> v + (b[i]-v)*t );
+  
+  let from = randomRadii(), to = randomRadii(), t=0, speed = 0.005;
+  const tick = () => {
+    t += speed;
+    if(t>=1){ t=0; from = to; to = randomRadii(); }
+    const cur = lerpArr(from,to,t);
+    pathEl.setAttribute('d', makePath(cur));
+    requestAnimationFrame(tick);
+  };
+  pathEl.setAttribute('d', makePath(from));
+  tick();
+})();
+
+/* ================== Canvas particle system ================== */
+(() => {
+  const canvas = qs('#particleCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const particles = [];
+  const N = 80;
+  
+  for(let i=0;i<N;i++){
+    particles.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      vx: (Math.random()-0.5)*1.2,
+      vy: (Math.random()-0.5)*1.2,
+      r: Math.random()*3+1,
+      color: `hsl(${Math.random()*360}, 80%, 70%)`
+    });
+  }
+  
+  let mx = -1000, my = -1000, mode = 'repel';
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mx = e.clientX - rect.left; my = e.clientY - rect.top;
+  });
+  
+  canvas.addEventListener('mouseleave', () => { mx = -1000; my = -1000; });
+  canvas.addEventListener('click', () => mode = (mode==='repel'?'attract':'repel'));
+  
+  const draw = () => {
+    ctx.fillStyle = 'rgba(18, 26, 40, 0.2)';
+    ctx.fillRect(0, 0, W, H);
+    
+    for(let i=0;i<N;i++){
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      
+      if(p.x<0 || p.x>W) p.vx *= -1;
+      if(p.y<0 || p.y>H) p.vy *= -1;
+      
+      const dx = p.x - mx, dy = p.y - my;
+      const d2 = dx*dx + dy*dy;
+      if(d2 < 12000){
+        const force = (1 - d2/12000) * 0.8;
+        const angle = Math.atan2(dy, dx);
+        if(mode==='repel'){
+          p.vx += Math.cos(angle) * force;
+          p.vy += Math.sin(angle) * force;
+        } else {
+          p.vx -= Math.cos(angle) * force;
+          p.vy -= Math.sin(angle) * force;
+        }
+      }
+    }
+    
+    for(let i=0;i<N;i++){
+      for(let j=i+1;j<N;j++){
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d2 = dx*dx + dy*dy;
+        if(d2 < 3000){
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 * (1 - d2/3000)})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath(); 
+          ctx.moveTo(a.x, a.y); 
+          ctx.lineTo(b.x, b.y); 
+          ctx.stroke();
+        }
+      }
+    }
+    
+    for(const p of particles){
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); 
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); 
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  };
+  draw();
+})();
+
+/* ================== Pill Toggle ================== */
+(() => {
+  const pill = qs('#togglePill');
+  pill.addEventListener('click', () => pill.classList.toggle('on'));
+})();
+
+/* ================== Animated Charts ================== */
+(() => {
+  // BAR CHART
+  const bar = qs('#barChart');
+  const bctx = bar.getContext('2d');
+  const data = [30,70,55,90,42,67,80];
+  const BAR_W = bar.width, BAR_H = bar.height;
+  
+  let t = 0;
+  const drawBars = () => {
+    t += 0.02;
+    bctx.clearRect(0,0,BAR_W,BAR_H);
+    
+    const pad = 28;
+    const w = (BAR_W - pad*2) / data.length;
+    
+    data.forEach((v,i) => {
+      const x = pad + i*w + w*0.12;
+      const targetH = (v/100)*(BAR_H - pad*2);
+      const h = targetH * Math.min(1, (Math.sin(t - i*0.12) + 1)/2);
+      
+      const grad = bctx.createLinearGradient(x, BAR_H - pad, x, BAR_H - pad - h);
+      grad.addColorStop(0, '#818cf8');
+      grad.addColorStop(1, '#6366f1');
+      
+      bctx.fillStyle = grad;
+      bctx.fillRect(x, BAR_H - pad - h, w*0.76, h);
+      
+      bctx.fillStyle = 'rgba(255,255,255,0.7)';
+      bctx.font = '12px Inter, Arial';
+      bctx.fillText(v, x + 6, BAR_H - pad - h - 8);
+    });
+    requestAnimationFrame(drawBars);
+  };
+  drawBars();
+
+  // LINE CHART
+  const line = qs('#lineChart');
+  const lctx = line.getContext('2d');
+  const lineData = [20,40,32,88,60,72,95,50,75];
+  
+  const drawLine = () => {
+    lctx.clearRect(0,0,line.width,line.height);
+    const pad = 28;
+    const w = (line.width - pad*2) / (lineData.length-1);
+    
+    // Draw grid
+    lctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    lctx.lineWidth = 1;
+    for(let y=0; y<=4; y++){
+      const yy = pad + (line.height - pad*2)*(y/4);
+      lctx.beginPath(); 
+      lctx.moveTo(pad, yy); 
+      lctx.lineTo(line.width-pad, yy); 
+      lctx.stroke();
+    }
+    
+    const now = Date.now() * 0.001;
+    lctx.beginPath();
+    for(let i=0; i<lineData.length; i++){
+      const t = (Math.sin(now*1.1 + i*0.4)+1)/2;
+      const val = lineData[i] * (0.6 + 0.4*t);
+      const x = pad + i*w;
+      const y = pad + (line.height - pad*2) * (1 - val/100);
+      
+      if(i===0) lctx.moveTo(x, y); 
+      else lctx.lineTo(x, y);
+    }
+    
+    lctx.strokeStyle = '#6366f1';
+    lctx.lineWidth = 3;
+    lctx.stroke();
+    
+    // Draw points
+    for(let i=0; i<lineData.length; i++){
+      const t = (Math.sin(now*1.1 + i*0.4)+1)/2;
+      const val = lineData[i] * (0.6 + 0.4*t);
+      const x = pad + i*w;
+      const y = pad + (line.height - pad*2) * (1 - val/100);
+      
+      lctx.fillStyle = '#c4b5fd';
+      lctx.beginPath();
+      lctx.arc(x, y, 5, 0, Math.PI*2);
+      lctx.fill();
+    }
+    
+    requestAnimationFrame(drawLine);
+  };
+  drawLine();
+})();
+
+/* ================== Reduced Motion Support ================== */
+(() => {
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(mq.matches){
+    // Disable heavy animations
+    document.querySelectorAll('.cube').forEach(el => {
+      el.style.transition = 'none';
+    });
+    
+    document.querySelectorAll('.carousel-track').forEach(el => {
+      el.style.transition = 'none';
+    });
+    
+    console.log('Reduced motion enabled - heavy animations disabled');
+  }
+})();
+</script>
+</body>
+</html>
